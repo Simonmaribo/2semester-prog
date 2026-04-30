@@ -1,0 +1,82 @@
+<%- include('partials/header') %>
+<div class="app-layout">
+  <%- include('partials/navbar', { activePage: 'properties' }) %>
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Mine ejendomme</div>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" onclick="document.getElementById('modal-create').classList.add('active')">+ Opret ejendom</button>
+      </div>
+    </div>
+
+    <div class="page">
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+      <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+
+      <% if (properties.length === 0) { %>
+        <div class="empty-state">
+          <p>Du har ingen ejendomme endnu. Klik "Opret ejendom" for at komme i gang.</p>
+        </div>
+      <% } else { %>
+        <div class="property-grid">
+          <% for (const prop of properties) { %>
+            <a href="/properties/<%= prop.id %>" class="property-card">
+              <h3><%= prop.address %></h3>
+              <div class="property-meta">
+                <span><%= prop.property_type || 'Ukendt type' %></span>
+                <% if (prop.build_year) { %><span>Byggeår: <%= prop.build_year %></span><% } %>
+                <% if (prop.living_area) { %><span><%= prop.living_area %> m&sup2;</span><% } %>
+              </div>
+              <div class="property-footer">
+                <span><%= prop.case_count || 0 %> case<%= (prop.case_count || 0) !== 1 ? 's' : '' %></span>
+                <span>Oprettet: <%= new Date(prop.created_at).toLocaleDateString('da-DK') %></span>
+              </div>
+            </a>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Opret ejendom -->
+<div class="modal-overlay" id="modal-create">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Opret ejendom</h2>
+      <button class="modal-close" onclick="document.getElementById('modal-create').classList.remove('active')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="address-search">
+        <div class="form-group">
+          <label for="address-input">Søg adresse</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="address-input" placeholder="Fx Vestergade 10, 1456 København K" autocomplete="off">
+            <button type="button" id="address-search-btn" class="btn btn-primary">Søg</button>
+          </div>
+          <div id="autocomplete-results" class="autocomplete-dropdown"></div>
+        </div>
+
+        <form method="POST" action="/properties" id="create-property-form" style="display: none;">
+          <input type="hidden" name="address" id="selected-address">
+          <input type="hidden" name="dawa_address_id" id="selected-dawa-id">
+          <input type="hidden" name="latitude" id="selected-lat">
+          <input type="hidden" name="longitude" id="selected-lng">
+          <input type="hidden" name="property_type" id="selected-type">
+          <input type="hidden" name="build_year" id="selected-year">
+          <input type="hidden" name="living_area" id="selected-area">
+          <input type="hidden" name="rooms" id="selected-rooms">
+          <input type="hidden" name="land_area" id="selected-land">
+          <div id="property-preview" class="property-preview"></div>
+          <div class="modal-footer" style="padding: 16px 0 0; border: none;">
+            <button type="button" class="btn" onclick="document.getElementById('modal-create').classList.remove('active')">Annuller</button>
+            <button type="submit" class="btn btn-primary">Opret ejendom</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/js/addressSearch.js"></script>
+<%- include('partials/footer') %>

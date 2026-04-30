@@ -1,0 +1,10 @@
+<%- include('partials/header') %>
+<div class="auth-layout">
+  <div class="auth-card" style="text-align:center">
+    <h1>Fejl</h1>
+    <p style="color:#64748b; margin-bottom:16px"><%= message %></p>
+    <% if (error) { %><pre class="error-detail"><%= error %></pre><% } %>
+    <a href="/" class="btn btn-primary">Gå til forsiden</a>
+  </div>
+</div>
+<%- include('partials/footer') %>

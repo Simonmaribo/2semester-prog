@@ -1,0 +1,49 @@
+<form method="POST" action="/cases/<%= investmentCase.id %>/purchase" class="tab-content active">
+  <div class="step-intro">
+    <h2>Køb &amp; omkostninger</h2>
+    <p>Angiv købsprisen og tilhørende omkostninger.</p>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group form-group-large">
+      <label for="f-price">Ejendomspris (DKK)</label>
+      <input type="number" id="f-price" name="purchase_price" value="<%= investmentCase.purchase_price %>" min="0" required>
+    </div>
+    <div class="form-group">
+      <label for="f-years">Periode (år)</label>
+      <input type="number" id="f-years" name="simulation_years" value="<%= investmentCase.simulation_years %>" min="1" max="50" required>
+    </div>
+    <div class="form-group">
+      <label for="f-appr">Værdistigning (%/år)</label>
+      <input type="number" id="f-appr" name="annual_appreciation_pct" value="<%= investmentCase.annual_appreciation_pct %>" required>
+      <span class="form-hint">Typisk 1-3% i Danmark</span>
+    </div>
+  </div>
+
+  <h3>Købsomkostninger</h3>
+  <div id="costs-list">
+    <% purchaseCostsForForm.forEach((cost, i) => { %>
+      <div class="op-row" data-row>
+        <input type="text" class="cost-label op-cat" name="costs[<%= i %>][label]" value="<%= cost.label %>" placeholder="Beskrivelse">
+        <input type="number" class="cost-amount op-amount" name="costs[<%= i %>][amount]" value="<%= cost.amount %>" min="0" placeholder="Beløb">
+        <span class="op-suffix">DKK</span>
+        <button type="button" class="loan-remove" data-remove-row>&times;</button>
+      </div>
+    <% }) %>
+  </div>
+
+  <template id="costs-row-template">
+    <div class="op-row" data-row>
+      <input type="text" class="cost-label op-cat" name="costs[__IDX__][label]" placeholder="Beskrivelse">
+      <input type="number" class="cost-amount op-amount" name="costs[__IDX__][amount]" value="0" min="0" placeholder="Beløb">
+      <span class="op-suffix">DKK</span>
+      <button type="button" class="loan-remove" data-remove-row>&times;</button>
+    </div>
+  </template>
+
+  <button type="button" class="btn btn-small" data-add-row="#costs-list" data-template="#costs-row-template">+ Tilføj omkostning</button>
+
+  <div class="step-footer">
+    <button type="submit" class="btn btn-primary">Gem &amp; fortsæt &rarr;</button>
+  </div>
+</form>

@@ -1,0 +1,78 @@
+<div class="tab-content active">
+  <div class="step-intro">
+    <h2>Opsummering</h2>
+    <p>Overblik over din investeringscase.</p>
+  </div>
+
+  <div class="summary-cards">
+    <div class="summary-card">
+      <h3>Investering</h3>
+      <div class="summary-row">
+        <span>Ejendomspris</span>
+        <strong><%= investmentCase.purchase_price.toLocaleString('da-DK') %> kr</strong>
+      </div>
+      <div class="summary-row">
+        <span>Købsomkostninger</span>
+        <strong><%= totals.totalPurchaseCosts.toLocaleString('da-DK') %> kr</strong>
+      </div>
+      <div class="summary-row total-row">
+        <span>Samlet investering</span>
+        <strong><%= totals.totalInvestment.toLocaleString('da-DK') %> kr</strong>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h3>Finansiering</h3>
+      <div class="summary-row">
+        <span>Samlet lån</span>
+        <strong><%= totals.totalLoan.toLocaleString('da-DK') %> kr</strong>
+      </div>
+      <div class="summary-row">
+        <span>Egen udbetaling</span>
+        <strong><%= totals.downPayment.toLocaleString('da-DK') %> kr</strong>
+      </div>
+      <div class="summary-row">
+        <span>Belåningsgrad</span>
+        <strong><%= totals.ltv %>%</strong>
+      </div>
+    </div>
+
+    <div class="summary-card">
+      <h3>Månedlig økonomi</h3>
+      <div class="summary-row">
+        <span>Låneydelser</span>
+        <strong>-<%= totals.monthlyDuring.toLocaleString('da-DK') %> kr</strong>
+      </div>
+      <div class="summary-row">
+        <span>Driftsomkostninger</span>
+        <strong>-<%= totals.totalOperatingMonthly.toLocaleString('da-DK') %> kr</strong>
+      </div>
+      <% if (totals.effectiveRent > 0) { %>
+        <div class="summary-row positive">
+          <span>Lejeindtægt</span>
+          <strong>+<%= totals.effectiveRent.toLocaleString('da-DK') %> kr</strong>
+        </div>
+      <% } %>
+      <div class="summary-row total-row <%= totals.monthlyCashflow >= 0 ? 'positive' : 'negative' %>">
+        <span>Månedligt cashflow</span>
+        <strong><%= totals.monthlyCashflow.toLocaleString('da-DK') %> kr</strong>
+      </div>
+    </div>
+
+    <% if (renovations.length > 0) { %>
+      <div class="summary-card">
+        <h3>Planlagte renoveringer</h3>
+        <% renovations.forEach((r) => { %>
+          <div class="summary-row">
+            <span><%= r.label %> (måned <%= r.month_in_period %>)</span>
+            <strong><%= r.cost.toLocaleString('da-DK') %> kr</strong>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="step-footer centered">
+    <a href="/simulation/<%= investmentCase.id %>" class="btn btn-primary btn-large">Kør simulering &rarr;</a>
+  </div>
+</div>

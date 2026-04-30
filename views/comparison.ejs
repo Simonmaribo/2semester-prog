@@ -1,0 +1,89 @@
+<%- include('partials/header') %>
+<div class="app-layout">
+  <%- include('partials/navbar', { activePage: 'compare' }) %>
+  <div class="main-content">
+    <div class="topbar">
+      <div class="topbar-title">Sammenlign cases</div>
+    </div>
+
+    <div class="page">
+      <div class="card">
+        <h2>Vælg 2 cases</h2>
+        <% if (!allCases || allCases.length < 2) { %>
+          <p class="empty-state">Du skal have mindst 2 cases for at sammenligne.</p>
+        <% } else { %>
+          <form method="GET" action="/compare">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Case 1</label>
+                <select name="case1">
+                  <option value="">Vælg...</option>
+                  <% for (const c of allCases) { %>
+                    <option value="<%= c.id %>" <%= (comparison && comparison.case1.investmentCase.id === c.id) ? 'selected' : '' %>><%= c.name %></option>
+                  <% } %>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Case 2</label>
+                <select name="case2">
+                  <option value="">Vælg...</option>
+                  <% for (const c of allCases) { %>
+                    <option value="<%= c.id %>" <%= (comparison && comparison.case2.investmentCase.id === c.id) ? 'selected' : '' %>><%= c.name %></option>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Sammenlign</button>
+          </form>
+        <% } %>
+      </div>
+
+      <% if (comparison) { %>
+        <% const c1 = comparison.case1; const c2 = comparison.case2; %>
+        <% const last1 = c1.result.yearlyResults[c1.result.yearlyResults.length - 1]; %>
+        <% const last2 = c2.result.yearlyResults[c2.result.yearlyResults.length - 1]; %>
+        <div class="card">
+          <h2>Sammenligning</h2>
+          <table class="data-table comparison-table">
+            <thead><tr><th>Nøgletal</th><th><%= c1.investmentCase.name %></th><th><%= c2.investmentCase.name %></th></tr></thead>
+            <tbody>
+              <tr><th>Ejendom</th><td><%= c1.property.address %></td><td><%= c2.property.address %></td></tr>
+              <tr><th>Købspris</th><td><%= c1.investmentCase.purchase_price.toLocaleString('da-DK') %> kr</td><td><%= c2.investmentCase.purchase_price.toLocaleString('da-DK') %> kr</td></tr>
+              <tr><th>Udbetaling (inkl. omk.)</th><td><%= c1.result.totalInitialInvestment.toLocaleString('da-DK') %> kr</td><td><%= c2.result.totalInitialInvestment.toLocaleString('da-DK') %> kr</td></tr>
+              <tr><th>Periode</th><td><%= c1.investmentCase.simulation_years %> år</td><td><%= c2.investmentCase.simulation_years %> år</td></tr>
+              <tr><th>Slutværdi</th><td><%= last1.propertyValue.toLocaleString('da-DK') %> kr</td><td><%= last2.propertyValue.toLocaleString('da-DK') %> kr</td></tr>
+              <tr><th>Slutgæld</th><td><%= last1.totalDebt.toLocaleString('da-DK') %> kr</td><td><%= last2.totalDebt.toLocaleString('da-DK') %> kr</td></tr>
+              <tr><th>Egenkapital</th><td><%= last1.equity.toLocaleString('da-DK') %> kr</td><td><%= last2.equity.toLocaleString('da-DK') %> kr</td></tr>
+              <tr><th>Kum. cashflow</th><td class="<%= last1.cumulativeCashflow >= 0 ? 'positive' : 'negative' %>"><%= last1.cumulativeCashflow.toLocaleString('da-DK') %> kr</td><td class="<%= last2.cumulativeCashflow >= 0 ? 'positive' : 'negative' %>"><%= last2.cumulativeCashflow.toLocaleString('da-DK') %> kr</td></tr>
+              <tr><th>Årligt afkast (ROI)</th><td><%= last1.roi %>% p.a.</td><td><%= last2.roi %>% p.a.</td></tr>
+              <tr><th>Afkastgrad</th><td><%= last1.afkastgrad %>%</td><td><%= last2.afkastgrad %>%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="charts-grid">
+          <div class="card"><h2>Egenkapital over tid</h2><canvas id="compareEquityChart"></canvas></div>
+          <div class="card"><h2>Kumulativt cashflow over tid</h2><canvas id="compareCashflowChart"></canvas></div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<% if (comparison) { %>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+  var comparisonData = {
+    case1: {
+      name: <%- JSON.stringify(comparison.case1.investmentCase.name) %>,
+      years: <%- JSON.stringify(comparison.case1.result.yearlyResults) %>
+    },
+    case2: {
+      name: <%- JSON.stringify(comparison.case2.investmentCase.name) %>,
+      years: <%- JSON.stringify(comparison.case2.result.yearlyResults) %>
+    }
+  };
+</script>
+<script type="module" src="/js/comparisonCharts.js"></script>
+<% } %>
+<%- include('partials/footer') %>
