@@ -1,6 +1,6 @@
-import { DatabaseController } from '../controllers/DatabaseController.js';
+const { DatabaseController } = require('../controllers/DatabaseController.js');
 
-export class Renovation {
+class Renovation {
   constructor(data) {
     this.id = data.id;
     this.case_id = data.case_id;
@@ -19,7 +19,7 @@ export class Renovation {
     return result.recordset.map((row) => new Renovation(row));
   }
 
-  static async replaceByCaseId(caseId, items) {
+  static async gemForCase(caseId, items) {
     const pool = await DatabaseController.getPool();
 
     await pool.request()
@@ -42,3 +42,5 @@ export class Renovation {
     }
   }
 }
+
+module.exports = { Renovation };

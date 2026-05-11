@@ -1,14 +1,14 @@
-import { config } from '../config.js';
+const { config } = require('../config.js');
 
 const BBR_REST_BASE = 'https://services.datafordeler.dk/BBR/BBRPublic/1/rest';
-const BBR_USAGE_CODES = { 
-  '120': 'Parcelhus', 
-  '130': 'Rækkehus', 
-  '140': 'Etagebolig' 
+const BBR_USAGE_CODES = {
+  '120': 'Parcelhus',
+  '130': 'Rækkehus',
+  '140': 'Etagebolig'
 };
 
-export class BbrService {
-  // status 6 = "gældende" i BBR, anvendelseskoder der starter med 1 = bolig
+class BbrService {
+  // status 6 = "gældende" i BBR, anvendelseskode der starter med 1 = bolig
   static erGældendeBolig(item, anvField) {
     return String(item.status) === '6' && String(item[anvField] || '').charAt(0) === '1';
   }
@@ -17,22 +17,19 @@ export class BbrService {
     try {
       const { DATAFORDELER_USERNAME, DATAFORDELER_PASSWORD } = config;
 
-      // Find den gældende bolig-bygning på adressen
       const buildings = await BbrService.restRequest('bygning', { Husnummer: adgangsadresseId }, DATAFORDELER_USERNAME, DATAFORDELER_PASSWORD);
-      const building = buildings?.find((b) => BbrService.erGældendeBolig(b, 'byg021BygningensAnvendelse'));
+      const building = buildings.find((b) => BbrService.erGældendeBolig(b, 'byg021BygningensAnvendelse'));
       if (!building) return null;
 
-      // Hent enheder for bygningen. Hvis vi har adresseId (specifik lejlighed),
-      // filtrer på adresseIdentificerer. Ellers tager vi første gældende bolig-enhed.
       const units = await BbrService.restRequest('enhed', { Bygning: building.id_lokalId }, DATAFORDELER_USERNAME, DATAFORDELER_PASSWORD);
-      const matchByAddress = adresseId && units?.find((u) => u.adresseIdentificerer === adresseId);
-      const unit = matchByAddress || units?.find((u) => BbrService.erGældendeBolig(u, 'enh020EnhedensAnvendelse'));
+      const matchByAddress = adresseId && units.find((u) => u.adresseIdentificerer === adresseId);
+      const unit = matchByAddress || units.find((u) => BbrService.erGældendeBolig(u, 'enh020EnhedensAnvendelse'));
 
       return {
         propertyType: BBR_USAGE_CODES[building.byg021BygningensAnvendelse] || 'Andet',
         buildYear: building.byg026Opførelsesår || null,
-        livingArea: unit?.enh026EnhedensSamledeAreal || building.byg039BygningensSamledeBoligAreal || building.byg038SamletBygningsareal || null,
-        rooms: unit?.enh031AntalVærelser || null,
+        livingArea: unit.enh026EnhedensSamledeAreal || building.byg039BygningensSamledeBoligAreal || null,
+        rooms: unit.enh031AntalVærelser || null,
       };
     } catch (error) {
       console.error('[BBR] Fejl:', error);
@@ -52,3 +49,5 @@ export class BbrService {
     return Array.isArray(data) ? data : null;
   }
 }
+
+module.exports = { BbrService };

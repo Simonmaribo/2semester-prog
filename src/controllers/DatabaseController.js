@@ -1,5 +1,5 @@
-import sql from 'mssql';
-import { config } from '../config.js';
+const sql = require('mssql');
+const { config } = require('../config.js');
 
 const sqlConfig = {
   server: config.DB_SERVER,
@@ -18,7 +18,7 @@ const sqlConfig = {
   },
 };
 
-export class DatabaseController {
+class DatabaseController {
   static pool = null;
 
   static async getPool() {
@@ -35,3 +35,5 @@ export class DatabaseController {
     }
   }
 }
+
+module.exports = { DatabaseController };

@@ -21,7 +21,6 @@ const sharedOptions = {
   }
 };
 
-// Graf 1: Egenkapital over tid (linjediagram)
 const equityCtx = document.getElementById('compareEquityChart');
 if (equityCtx) {
   new Chart(equityCtx, {
@@ -29,29 +28,14 @@ if (equityCtx) {
     data: {
       labels,
       datasets: [
-        {
-          label: c1.name,
-          data: c1.years.map((d) => d.equity),
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.08)',
-          fill: false,
-          tension: 0.3,
-        },
-        {
-          label: c2.name,
-          data: c2.years.map((d) => d.equity),
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.08)',
-          fill: false,
-          tension: 0.3,
-        }
+        { label: c1.name, data: c1.years.map((d) => d.equity), borderColor: 'blue', fill: false },
+        { label: c2.name, data: c2.years.map((d) => d.equity), borderColor: 'orange', fill: false },
       ]
     },
     options: sharedOptions,
   });
 }
 
-// Graf 2: Kumulativt cashflow over tid (linjediagram)
 const cashflowCtx = document.getElementById('compareCashflowChart');
 if (cashflowCtx) {
   new Chart(cashflowCtx, {
@@ -59,22 +43,8 @@ if (cashflowCtx) {
     data: {
       labels,
       datasets: [
-        {
-          label: c1.name,
-          data: c1.years.map((d) => d.cumulativeCashflow),
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.08)',
-          fill: false,
-          tension: 0.3,
-        },
-        {
-          label: c2.name,
-          data: c2.years.map((d) => d.cumulativeCashflow),
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.08)',
-          fill: false,
-          tension: 0.3,
-        }
+        { label: c1.name, data: c1.years.map((d) => d.cumulativeCashflow), borderColor: 'blue', fill: false },
+        { label: c2.name, data: c2.years.map((d) => d.cumulativeCashflow), borderColor: 'orange', fill: false },
       ]
     },
     options: sharedOptions,

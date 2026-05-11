@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { PropertyController } from '../controllers/PropertyController.js';
+const { Router } = require('express');
+const { PropertyController } = require('../controllers/PropertyController.js');
 
 const router = Router();
 
@@ -8,4 +8,4 @@ router.post('/', PropertyController.createProperty);
 router.get('/:id', PropertyController.showProperty);
 router.post('/:id/delete', PropertyController.deleteProperty);
 
-export default router;
+module.exports = router;

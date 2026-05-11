@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { CaseController } from '../controllers/CaseController.js';
+const { Router } = require('express');
+const { CaseController } = require('../controllers/CaseController.js');
 
 const router = Router();
 
@@ -13,4 +13,4 @@ router.post('/:id/financing', CaseController.saveFinancingData);
 router.post('/:id/operating-and-rental', CaseController.saveOperatingAndRental);
 router.post('/:id/renovations', CaseController.saveRenovationsData);
 
-export default router;
+module.exports = router;

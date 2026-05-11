@@ -1,6 +1,6 @@
-import { DatabaseController } from '../controllers/DatabaseController.js';
+const { DatabaseController } = require('../controllers/DatabaseController.js');
 
-export class Property {
+class Property {
   constructor(data) {
     this.id = data.id;
     this.user_id = data.user_id;
@@ -50,14 +50,13 @@ export class Property {
       .input('build_year', data.build_year || null)
       .input('living_area', data.living_area || null)
       .input('rooms', data.rooms || null)
-      .input('land_area', null)
       .input('latitude', data.latitude || null)
       .input('longitude', data.longitude || null)
       .input('dawa_address_id', data.dawa_address_id || null)
       .query(`
-        INSERT INTO properties (user_id, address, property_type, build_year, living_area, rooms, land_area, latitude, longitude, dawa_address_id)
+        INSERT INTO properties (user_id, address, property_type, build_year, living_area, rooms, latitude, longitude, dawa_address_id)
         OUTPUT INSERTED.*
-        VALUES (@user_id, @address, @property_type, @build_year, @living_area, @rooms, @land_area, @latitude, @longitude, @dawa_address_id)
+        VALUES (@user_id, @address, @property_type, @build_year, @living_area, @rooms, @latitude, @longitude, @dawa_address_id)
       `);
 
     return new Property(result.recordset[0]);
@@ -70,3 +69,5 @@ export class Property {
       .query('DELETE FROM properties WHERE id = @id');
   }
 }
+
+module.exports = { Property };

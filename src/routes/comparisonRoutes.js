@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { ComparisonController } from '../controllers/ComparisonController.js';
+const { Router } = require('express');
+const { ComparisonController } = require('../controllers/ComparisonController.js');
 
 const router = Router();
 
 router.get('/', ComparisonController.showComparison);
 
-export default router;
+module.exports = router;

@@ -1,24 +1,26 @@
-import { InvestmentCase } from '../models/InvestmentCase.js';
-import { Property } from '../models/Property.js';
-import { PurchaseCost } from '../models/PurchaseCost.js';
-import { Loan } from '../models/Loan.js';
-import { Renovation } from '../models/Renovation.js';
-import { OperatingCost } from '../models/OperatingCost.js';
-import { RentalSettings } from '../models/RentalSettings.js';
-import { SimulationEngine } from '../services/SimulationEngine.js';
+const { InvestmentCase } = require('../models/InvestmentCase.js');
+const { Property } = require('../models/Property.js');
+const { PurchaseCost } = require('../models/PurchaseCost.js');
+const { Loan } = require('../models/Loan.js');
+const { Renovation } = require('../models/Renovation.js');
+const { OperatingCost } = require('../models/OperatingCost.js');
+const { RentalSettings } = require('../models/RentalSettings.js');
+const { SimulationEngine } = require('../services/SimulationEngine.js');
 
-export class SimulationController {
+class SimulationController {
   static async showSimulation(req, res, next) {
     try {
       const caseId = parseInt(req.params.id);
-    
-      const { investmentCase, property, result } = await SimulationController.getCaseSimulation(caseId, req.session.userId)
 
-      if (!investmentCase) {
+      const data = await SimulationController.getCaseSimulation(caseId, req.session.userId);
+
+      if (!data) {
         return res.status(404).render('error', {
-          title: 'Ikke fundet', message: 'Investeringscase ikke fundet.', error: null, user: res.locals.user
+          title: 'Ikke fundet', message: 'Investeringscase ikke fundet.', error: null,
         });
       }
+
+      const { investmentCase, property, result } = data;
 
       res.render('simulation', {
         title: `Simulering: ${investmentCase.name}`,
@@ -27,7 +29,6 @@ export class SimulationController {
         result,
         yearlyResults: result.yearlyResults,
         totalInitialInvestment: result.totalInitialInvestment,
-        user: res.locals.user,
       });
     } catch (error) {
       next(error);
@@ -35,7 +36,7 @@ export class SimulationController {
   }
 
   static async getCaseSimulation(caseId, userId) {
-    const investmentCase = await InvestmentCase.findByIdForUser(caseId, userId);
+    const investmentCase = await InvestmentCase.findForUser(caseId, userId);
     if (!investmentCase) {
       return null;
     }
@@ -45,7 +46,7 @@ export class SimulationController {
     const purchaseCosts = await PurchaseCost.findByCaseId(caseId);
     const loans = await Loan.findByCaseId(caseId);
     const renovations = await Renovation.findByCaseId(caseId);
-    const operatingCosts = await OperatingCost.findByCaseId(caseId);
+    const operatingCosts = await OperatingCost.hentForCase(caseId);
     const rentalSettings = await RentalSettings.findByCaseId(caseId);
 
     const simulationInput = {
@@ -76,3 +77,5 @@ export class SimulationController {
     };
   }
 }
+
+module.exports = { SimulationController };

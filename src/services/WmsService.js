@@ -8,8 +8,8 @@
 //
 // Derfor konverterer vi koordinaterne med proj4-biblioteket,
 // før vi bygger WMS-URL'en.
-import proj4 from 'proj4';
-import { config } from '../config.js';
+const proj4 = require('proj4');
+const { config } = require('../config.js');
 
 const WMS_URL = 'https://wms.datafordeler.dk/GeoDanmarkOrto/orto_foraar/1.0.0/WMS';
 
@@ -18,14 +18,14 @@ const WMS_URL = 'https://wms.datafordeler.dk/GeoDanmarkOrto/orto_foraar/1.0.0/WM
 // EPSG:4326 kender proj4 i forvejen.
 proj4.defs('EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs');
 
-export class WmsService {
+class WmsService {
   // Bygger URL'en til et luftfoto centreret om (lat, lng) med en given zoom.
-  // zoomMeters = halvdelen af fotoets bredde i meter (200 → 400m × 400m område).
+  // zoomMeters = halvdelen af fotoets bredde i meter (200 -> 400m * 400m område).
   static getAerialPhotoUrl(lat, lng, zoomMeters = 200) {
     const token = config.DATAFORSYNINGEN_TOKEN;
     if (!token) return '';
 
-    // Konverter GPS (lng, lat) → UTM (easting, northing).
+    // Konverter GPS (lng, lat) -> UTM (easting, northing).
     // proj4 forventer rækkefølgen [længdegrad, breddegrad].
     const [easting, northing] = proj4('EPSG:4326', 'EPSG:25832', [lng, lat]);
 
@@ -55,3 +55,5 @@ export class WmsService {
     return `${WMS_URL}?${params.toString()}`;
   }
 }
+
+module.exports = { WmsService };

@@ -1,13 +1,13 @@
-import { DawaService } from '../services/DawaService.js';
-import { BbrService } from '../services/BbrService.js';
+const { DawaService } = require('../services/DawaService.js');
+const { BbrService } = require('../services/BbrService.js');
 
-export class ApiController {
+class ApiController {
   static async dawaAutocomplete(req, res) {
     try {
       const query = req.query.q;
       console.log(`[DAWA Autocomplete] Søger efter: "${query}"`);
-      if (!query || query.length < 2) { 
-        return res.json([]); 
+      if (!query || query.length < 2) {
+        return res.json([]);
       }
       const results = await DawaService.autocomplete(query);
       console.log(`[DAWA Autocomplete] Fandt ${results.length} resultater`);
@@ -21,7 +21,7 @@ export class ApiController {
   static async bbrLookup(req, res) {
     try {
       const data = await BbrService.getBuildingData(req.params.adgangsadresseId, req.query.adresseId);
-      if (!data) { 
+      if (!data) {
         return res.status(404).json({ error: 'Ingen bygningsdata fundet' });
       }
       console.log(`[BBR] Fundet: ${data.propertyType}, byggeår: ${data.buildYear}, areal: ${data.livingArea} m²`);
@@ -32,3 +32,5 @@ export class ApiController {
     }
   }
 }
+
+module.exports = { ApiController };

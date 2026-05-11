@@ -1,54 +1,21 @@
-import { InvestmentCase } from '../models/InvestmentCase.js';
-import { Property } from '../models/Property.js';
-import { PurchaseCost } from '../models/PurchaseCost.js';
-import { Loan } from '../models/Loan.js';
-import { Renovation } from '../models/Renovation.js';
-import { OperatingCost, OPERATING_COST_CATEGORIES } from '../models/OperatingCost.js';
-import { RentalSettings } from '../models/RentalSettings.js';
-import { LoanCalculator } from '../services/LoanCalculator.js';
+const { InvestmentCase } = require('../models/InvestmentCase.js');
+const { Property } = require('../models/Property.js');
+const { PurchaseCost } = require('../models/PurchaseCost.js');
+const { Loan } = require('../models/Loan.js');
+const { Renovation } = require('../models/Renovation.js');
+const { OperatingCost, OPERATING_COST_CATEGORIES } = require('../models/OperatingCost.js');
+const { RentalSettings } = require('../models/RentalSettings.js');
+const { LoanCalculator } = require('../services/LoanCalculator.js');
 
 const VALID_TABS = ['purchase', 'financing', 'operating', 'renovations', 'summary'];
 
-const NEXT_TAB = {
-  purchase: 'financing',
-  financing: 'operating',
-  'operating-and-rental': 'renovations',
-  renovations: 'summary',
-};
-
-function defaultPurchaseCosts(price) {
-  return [
-    { label: 'Tinglysningsafgift', amount: price > 0 ? Math.round(price * 0.006 + 1850) : 0 },
-    { label: 'Advokatudgifter', amount: 10000 },
-    { label: 'Bankgebyr', amount: 5000 },
-    { label: 'Køberrådgivning', amount: 0 },
-  ];
+function parseRows(input) {
+  if (!input) return [];
+  if (Array.isArray(input)) return input;
+  return Object.values(input);
 }
 
-function defaultLoans(price) {
-  if (!price || price <= 0) return [];
-  return [
-    { label: 'Realkreditlån (80%)', amount: Math.round(price * 0.80), interest_rate_pct: 3.5, term_years: 30, interest_only_years: 0, loan_type: 'fixed' },
-    { label: 'Banklån (15%)', amount: Math.round(price * 0.15), interest_rate_pct: 5.0, term_years: 10, interest_only_years: 0, loan_type: 'fixed' },
-  ];
-}
-
-function defaultOperatingCosts(livingArea) {
-  const rates = {
-    'Ejendomsskat': 5,
-    'Forsikring': 3,
-    'Vedligeholdelse': 5,
-    'Fællesudgifter': 0,
-    'Administration': 0,
-    'Andet': 0,
-  };
-  return OPERATING_COST_CATEGORIES.map(cat => ({
-    category: cat,
-    monthly_amount: Math.round((rates[cat] || 0) * (livingArea || 0)),
-  }));
-}
-
-export class CaseController {
+class CaseController {
   static async createCase(req, res, next) {
     try {
       const { property_id, name, description } = req.body;
@@ -61,7 +28,7 @@ export class CaseController {
       const property = await Property.findById(parseInt(property_id));
       if (!property || property.user_id !== req.session.userId) {
         return res.status(403).render('error', {
-          title: 'Ejendomsprofil ikke fundet', message: 'Ejendomsprofil ikke fundet', error: null, user: res.locals.user
+          title: 'Ejendomsprofil ikke fundet', message: 'Ejendomsprofil ikke fundet', error: null,
         });
       }
 
@@ -79,48 +46,61 @@ export class CaseController {
 
   static async showCase(req, res, next) {
     try {
-      const investmentCase = await InvestmentCase.findByIdForUser(parseInt(req.params.id), req.session.userId);
+      const investmentCase = await InvestmentCase.findForUser(parseInt(req.params.id), req.session.userId);
 
       if (!investmentCase) {
         return res.status(404).render('error', {
-          title: 'Ikke fundet', message: 'Investeringscase ikke fundet.', error: null, user: res.locals.user
+          title: 'Ikke fundet', message: 'Investeringscase ikke fundet.', error: null,
         });
       }
       const property = await Property.findById(investmentCase.property_id);
       const purchaseCosts = await PurchaseCost.findByCaseId(investmentCase.id);
       const loans = await Loan.findByCaseId(investmentCase.id);
       const renovations = await Renovation.findByCaseId(investmentCase.id);
-      const operatingCosts = await OperatingCost.findByCaseId(investmentCase.id);
+      const operatingCosts = await OperatingCost.hentForCase(investmentCase.id);
       const rentalSettings = await RentalSettings.findByCaseId(investmentCase.id);
 
-      const requestedTab = req.query.tab;
       let tab = 'purchase';
-      if (VALID_TABS.indexOf(requestedTab) !== -1) {
-        tab = requestedTab;
+      if (VALID_TABS.includes(req.query.tab)) {
+        tab = req.query.tab;
       }
+
+      const price = investmentCase.purchase_price || 0;
 
       const purchaseCostsForForm = purchaseCosts.length > 0
         ? purchaseCosts.map(c => ({ label: c.label, amount: c.amount }))
-        : defaultPurchaseCosts(investmentCase.purchase_price || 0);
+        : [
+            { label: 'Tinglysningsafgift', amount: 0 },
+            { label: 'Advokatudgifter', amount: 10000 },
+            { label: 'Bankgebyr', amount: 5000 },
+            { label: 'Køberrådgivning', amount: 0 },
+          ];
 
       const loansForForm = loans.length > 0
         ? loans.map(l => ({
             label: l.label, amount: l.amount, interest_rate_pct: l.interest_rate_pct,
             term_years: l.term_years, interest_only_years: l.interest_only_years, loan_type: l.loan_type,
           }))
-        : defaultLoans(investmentCase.purchase_price || 0);
+        : [
+            { label: 'Realkreditlån (80%)', amount: Math.round(price * 0.80), interest_rate_pct: 3.5, term_years: 30, interest_only_years: 0, loan_type: 'fixed' },
+            { label: 'Banklån (15%)', amount: Math.round(price * 0.15), interest_rate_pct: 5.0, term_years: 10, interest_only_years: 0, loan_type: 'fixed' },
+          ];
 
+      const driftBeløb = { 'Ejendomsskat': 1500, 'Forsikring': 800, 'Vedligeholdelse': 1500 };
       const operatingCostsForForm = operatingCosts.length > 0
         ? operatingCosts.map(c => ({ category: c.category, monthly_amount: c.monthly_amount }))
-        : defaultOperatingCosts(property?.living_area || 0);
+        : OPERATING_COST_CATEGORIES.map(cat => ({ category: cat, monthly_amount: driftBeløb[cat] || 0 }));
 
       const rentalForForm = rentalSettings || {
         is_rental: false, monthly_rent: 0, vacancy_rate_pct: 5, annual_rent_increase_pct: 2,
       };
 
-      const totalPurchaseCosts = purchaseCostsForForm.reduce((s, c) => s + (c.amount || 0), 0);
+      let totalPurchaseCosts = 0;
+      for (const c of purchaseCostsForForm) totalPurchaseCosts += c.amount || 0;
       const totalInvestment = (investmentCase.purchase_price || 0) + totalPurchaseCosts;
-      const totalLoan = loansForForm.reduce((s, l) => s + (l.amount || 0), 0);
+
+      let totalLoan = 0;
+      for (const l of loansForForm) totalLoan += l.amount || 0;
       const downPayment = totalInvestment - totalLoan;
 
       let ltv = 0;
@@ -131,7 +111,8 @@ export class CaseController {
       const monthlyPayments = CaseController.calcMonthlyPayments(loansForForm);
       const worstMonthlyPayment = Math.max(monthlyPayments.during, monthlyPayments.after);
 
-      const totalOperatingMonthly = operatingCostsForForm.reduce((s, c) => s + (c.monthly_amount || 0), 0);
+      let totalOperatingMonthly = 0;
+      for (const c of operatingCostsForForm) totalOperatingMonthly += c.monthly_amount || 0;
 
       const vacancyRate = Math.min(0.99, (rentalForForm.vacancy_rate_pct || 0) / 100);
 
@@ -162,17 +143,22 @@ export class CaseController {
         operatingCostsForForm,
         rentalForForm,
         totals: {
-          totalPurchaseCosts, totalInvestment, totalLoan, downPayment, ltv,
-          totalOperatingMonthly, worstMonthlyPayment, requiredMonthlyRent,
+          totalPurchaseCosts: totalPurchaseCosts,
+          totalInvestment: totalInvestment,
+          totalLoan: totalLoan,
+          downPayment: downPayment,
+          ltv: ltv,
+          totalOperatingMonthly: totalOperatingMonthly,
+          worstMonthlyPayment: worstMonthlyPayment,
+          requiredMonthlyRent: requiredMonthlyRent,
           monthlyDuring: Math.round(monthlyPayments.during),
           monthlyAfter: Math.round(monthlyPayments.after),
           hasIo: monthlyPayments.hasIo,
           effectiveRent: Math.round(effectiveRent),
-          monthlyCashflow,
+          monthlyCashflow: monthlyCashflow,
         },
         flashSuccess: typeof req.query.success === 'string' ? req.query.success : null,
         flashError: typeof req.query.error === 'string' ? req.query.error : null,
-        user: res.locals.user,
       });
     } catch (error) {
       next(error);
@@ -182,7 +168,7 @@ export class CaseController {
   static async savePurchaseData(req, res, next) {
     try {
       const caseId = parseInt(req.params.id);
-      const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
+      const investmentCase = await InvestmentCase.findForUser(caseId, req.session.userId);
       if (!investmentCase) {
         return res.status(403).redirect('/properties');
       }
@@ -193,11 +179,13 @@ export class CaseController {
         annual_appreciation_pct: parseFloat(req.body.annual_appreciation_pct) || 2,
       });
 
-      const costs = CaseController.parseArrayInput(req.body.costs)
-        .map((c) => ({ label: (c.label || '').trim(), amount: parseFloat(c.amount) || 0 }))
+      const costs = parseRows(req.body.costs).map((c) => ({
+        label: (c.label || '').trim(),
+        amount: parseFloat(c.amount) || 0,
+      }));
       await PurchaseCost.replaceByCaseId(caseId, costs);
 
-      CaseController.redirectToStep(res, caseId, 'purchase', 'Købsdata gemt');
+      res.redirect(`/cases/${caseId}?tab=financing&success=${encodeURIComponent('Købsdata gemt')}`);
     } catch (error) {
       next(error);
     }
@@ -206,12 +194,12 @@ export class CaseController {
   static async saveFinancingData(req, res, next) {
     try {
       const caseId = parseInt(req.params.id);
-      const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
+      const investmentCase = await InvestmentCase.findForUser(caseId, req.session.userId);
       if (!investmentCase) {
         return res.status(403).redirect('/properties');
       }
 
-      const loans = CaseController.parseArrayInput(req.body.loans)
+      const loans = parseRows(req.body.loans)
         .map((l) => ({
           label: (l.label || '').trim(),
           amount: parseFloat(l.amount) || 0,
@@ -220,13 +208,14 @@ export class CaseController {
           interest_only_years: parseInt(l.interest_only_years) || 0,
           loan_type: l.loan_type || 'fixed',
         }))
+        .filter(l => l.label && l.amount > 0);
 
       if (loans.length === 0) {
-        return res.redirect(`/cases/${caseId}?tab=financing&error=Tilføj+mindst+et+lån+med+betegnelse`);
+        return res.redirect(`/cases/${caseId}?tab=financing&error=Tilføj+mindst+et+lån`);
       }
 
       await Loan.replaceByCaseId(caseId, loans);
-      CaseController.redirectToStep(res, caseId, 'financing', 'Finansiering gemt');
+      res.redirect(`/cases/${caseId}?tab=operating&success=${encodeURIComponent('Finansiering gemt')}`);
     } catch (error) {
       next(error);
     }
@@ -235,16 +224,15 @@ export class CaseController {
   static async saveOperatingAndRental(req, res, next) {
     try {
       const caseId = parseInt(req.params.id);
-      const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
+      const investmentCase = await InvestmentCase.findForUser(caseId, req.session.userId);
       if (!investmentCase) {
-        return res.status(403).redirect('/properties');
+        return res.status(404).send('Case ikke fundet');
       }
 
-      const items = CaseController.parseArrayInput(req.body.operating_costs)
-        .map((c) => ({
-          category: (c.category || '').trim(),
-          monthly_amount: parseFloat(c.monthly_amount) || 0,
-        }))
+      const items = parseRows(req.body.operating_costs).map((c) => ({
+        category: (c.category || '').trim(),
+        monthly_amount: parseFloat(c.monthly_amount) || 0,
+      }));
       await OperatingCost.replaceByCaseId(caseId, items);
 
       await RentalSettings.upsert(caseId, {
@@ -254,7 +242,7 @@ export class CaseController {
         annual_rent_increase_pct: parseFloat(req.body.annual_rent_increase_pct) || 2,
       });
 
-      CaseController.redirectToStep(res, caseId, 'operating-and-rental', 'Drift og udlejning gemt');
+      res.redirect(`/cases/${caseId}?tab=renovations&success=${encodeURIComponent('Drift og udlejning gemt')}`);
     } catch (error) {
       next(error);
     }
@@ -263,21 +251,21 @@ export class CaseController {
   static async saveRenovationsData(req, res, next) {
     try {
       const caseId = parseInt(req.params.id);
-      const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
+      const investmentCase = await InvestmentCase.findForUser(caseId, req.session.userId);
       if (!investmentCase) {
         return res.status(403).redirect('/properties');
       }
 
-      const renovations = CaseController.parseArrayInput(req.body.renovations)
-        .map((r) => ({
-          label: (r.label || '').trim(),
-          cost: parseFloat(r.cost) || 0,
-          value_increase: parseFloat(r.value_increase) || 0,
-          month_in_period: parseInt(r.month_in_period) || 1,
-        }))
-      await Renovation.replaceByCaseId(caseId, renovations);
+      // TODO: validere at month_in_period < simulation_years * 12
+      const renovations = parseRows(req.body.renovations).map((r) => ({
+        label: (r.label || '').trim(),
+        cost: parseFloat(r.cost) || 0,
+        value_increase: parseFloat(r.value_increase) || 0,
+        month_in_period: parseInt(r.month_in_period) || 1,
+      }));
+      await Renovation.gemForCase(caseId, renovations);
 
-      CaseController.redirectToStep(res, caseId, 'renovations', 'Renoveringer gemt');
+      res.redirect(`/cases/${caseId}?tab=summary&success=${encodeURIComponent('Renoveringer gemt')}`);
     } catch (error) {
       next(error);
     }
@@ -285,7 +273,7 @@ export class CaseController {
 
   static async deleteCase(req, res, next) {
     try {
-      const investmentCase = await InvestmentCase.findByIdForUser(parseInt(req.params.id), req.session.userId);
+      const investmentCase = await InvestmentCase.findForUser(parseInt(req.params.id), req.session.userId);
       if (!investmentCase) {
         return res.status(403).redirect('/properties');
       }
@@ -300,7 +288,7 @@ export class CaseController {
 
   static async duplicateCase(req, res, next) {
     try {
-      const investmentCase = await InvestmentCase.findByIdForUser(parseInt(req.params.id), req.session.userId);
+      const investmentCase = await InvestmentCase.findForUser(parseInt(req.params.id), req.session.userId);
       if (!investmentCase) {
         return res.status(403).redirect('/properties');
       }
@@ -322,12 +310,12 @@ export class CaseController {
       if (!l.amount || l.amount <= 0) continue;
 
       const ioMonths = (l.interest_only_years || 0) * 12;
-      const fullPayment = LoanCalculator.monthlyAnnuityPayment(l.amount, l.interest_rate_pct, l.term_years);
+      const fullPayment = LoanCalculator.månedligYdelse(l.amount, l.interest_rate_pct, l.term_years);
 
       if (ioMonths > 0) {
         hasIo = true;
-        during += LoanCalculator.monthlyInterestOnlyPayment(l.amount, l.interest_rate_pct);
-        after += LoanCalculator.postInterestOnlyPayment(l.amount, l.interest_rate_pct, l.term_years, ioMonths);
+        during += LoanCalculator.afdragsfriYdelse(l.amount, l.interest_rate_pct);
+        after += LoanCalculator.ydelseEfterAfdragsfri(l.amount, l.interest_rate_pct, l.term_years, ioMonths);
       } else {
         during += fullPayment;
         after += fullPayment;
@@ -336,16 +324,6 @@ export class CaseController {
 
     return { during, after, hasIo };
   }
-
-  static redirectToStep(res, caseId, fromEndpoint, message) {
-    const next = NEXT_TAB[fromEndpoint] || 'purchase';
-    res.redirect(`/cases/${caseId}?tab=${next}&success=${encodeURIComponent(message)}`);
-  }
-
-  static parseArrayInput(input) {
-    if (!input) return [];
-    if (Array.isArray(input)) return input;
-    if (typeof input === 'object') return Object.values(input);
-    return [];
-  }
 }
+
+module.exports = { CaseController };

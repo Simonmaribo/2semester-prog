@@ -1,6 +1,6 @@
-import { DatabaseController } from '../controllers/DatabaseController.js';
+const { DatabaseController } = require('../controllers/DatabaseController.js');
 
-export class InvestmentCase {
+class InvestmentCase {
   constructor(data) {
     this.id = data.id;
     this.property_id = data.property_id;
@@ -46,7 +46,7 @@ export class InvestmentCase {
     return new InvestmentCase(result.recordset[0]);
   }
 
-  static async findByIdForUser(id, userId) {
+  static async findForUser(id, userId) {
     const pool = await DatabaseController.getPool();
     const result = await pool.request()
       .input('id', id)
@@ -84,11 +84,11 @@ export class InvestmentCase {
     const pool = await DatabaseController.getPool();
     await pool.request()
       .input('id', id)
-      .input('name', data.name !== undefined ? data.name : existing.name)
-      .input('description', data.description !== undefined ? data.description : existing.description)
-      .input('purchase_price', data.purchase_price !== undefined ? data.purchase_price : existing.purchase_price)
-      .input('simulation_years', data.simulation_years !== undefined ? data.simulation_years : existing.simulation_years)
-      .input('annual_appreciation_pct', data.annual_appreciation_pct !== undefined ? data.annual_appreciation_pct : existing.annual_appreciation_pct)
+      .input('name', data.name ?? existing.name)
+      .input('description', data.description ?? existing.description)
+      .input('purchase_price', data.purchase_price ?? existing.purchase_price)
+      .input('simulation_years', data.simulation_years ?? existing.simulation_years)
+      .input('annual_appreciation_pct', data.annual_appreciation_pct ?? existing.annual_appreciation_pct)
       .query(`
         UPDATE investment_cases
         SET name = @name,
@@ -135,6 +135,7 @@ export class InvestmentCase {
 
     const newCaseId = newCase.recordset[0].id;
 
+    // kopier alle tilknyttede data over til den nye case
     await pool.request()
       .input('oldCaseId', id)
       .input('newCaseId', newCaseId)
@@ -178,3 +179,5 @@ export class InvestmentCase {
     return new InvestmentCase(newCase.recordset[0]);
   }
 }
+
+module.exports = { InvestmentCase };

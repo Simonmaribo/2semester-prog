@@ -1,9 +1,9 @@
-import bcrypt from 'bcrypt';
-import { User } from '../models/User.js';
+const bcrypt = require('bcrypt');
+const { User } = require('../models/User.js');
 
-export class AuthController {
+class AuthController {
   static showLogin(req, res) {
-    res.render('auth/login', { title: 'Log ind', error: null, user: null });
+    res.render('auth/login', { title: 'Log ind', error: null });
   }
 
   static async login(req, res) {
@@ -14,7 +14,6 @@ export class AuthController {
         res.render('auth/login', {
           title: 'Log ind',
           error: 'Email og password er påkrævet.',
-          user: null,
         });
         return;
       }
@@ -24,17 +23,15 @@ export class AuthController {
         res.render('auth/login', {
           title: 'Log ind',
           error: 'Forkert email eller password.',
-          user: null,
         });
         return;
       }
 
-      const passwordMatch = await bcrypt.compare(password, user.password_hash);
+      const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
         res.render('auth/login', {
           title: 'Log ind',
           error: 'Forkert email eller password.',
-          user: null,
         });
         return;
       }
@@ -46,13 +43,12 @@ export class AuthController {
       res.render('auth/login', {
         title: 'Log ind',
         error: 'Der opstod en fejl. Prøv igen.',
-        user: null,
       });
     }
   }
 
   static showRegister(req, res) {
-    res.render('auth/register', { title: 'Opret konto', error: null, user: null });
+    res.render('auth/register', { title: 'Opret konto', error: null });
   }
 
   static async register(req, res) {
@@ -63,7 +59,6 @@ export class AuthController {
         res.render('auth/register', {
           title: 'Opret konto',
           error: 'Alle felter er påkrævet.',
-          user: null,
         });
         return;
       }
@@ -72,7 +67,6 @@ export class AuthController {
         res.render('auth/register', {
           title: 'Opret konto',
           error: 'Password skal være mindst 8 tegn.',
-          user: null,
         });
         return;
       }
@@ -81,7 +75,6 @@ export class AuthController {
         res.render('auth/register', {
           title: 'Opret konto',
           error: 'Navn skal være mindst 2 tegn.',
-          user: null,
         });
         return;
       }
@@ -91,7 +84,6 @@ export class AuthController {
         res.render('auth/register', {
           title: 'Opret konto',
           error: 'Denne email er allerede registreret.',
-          user: null,
         });
         return;
       }
@@ -106,7 +98,6 @@ export class AuthController {
       res.render('auth/register', {
         title: 'Opret konto',
         error: 'Der opstod en fejl. Prøv igen.',
-        user: null,
       });
     }
   }
@@ -117,3 +108,5 @@ export class AuthController {
     });
   }
 }
+
+module.exports = { AuthController };

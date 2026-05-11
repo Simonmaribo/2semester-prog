@@ -1,15 +1,14 @@
-import { Property } from '../models/Property.js';
-import { InvestmentCase } from '../models/InvestmentCase.js';
-import { WmsService } from '../services/WmsService.js';
+const { Property } = require('../models/Property.js');
+const { InvestmentCase } = require('../models/InvestmentCase.js');
+const { WmsService } = require('../services/WmsService.js');
 
-export class PropertyController {
+class PropertyController {
   static async showHome(req, res, next) {
     try {
       const properties = await Property.findByUserId(req.session.userId);
       res.render('home', {
         title: 'Mine ejendomme',
         properties,
-        user: res.locals.user,
         error: null,
         success: null,
       });
@@ -30,7 +29,6 @@ export class PropertyController {
         return res.render('home', {
           title: 'Mine ejendomme',
           properties,
-          user: res.locals.user,
           error: 'Vælg venligst en adresse fra søgeresultaterne.',
           success: null,
         });
@@ -58,12 +56,11 @@ export class PropertyController {
     try {
       const property = await Property.findById(parseInt(req.params.id));
 
-      if (!property) {
+      if (!property || property.user_id !== req.session.userId) {
         return res.status(404).render('error', {
           title: 'Ikke fundet',
           message: 'Ejendommen blev ikke fundet.',
           error: null,
-          user: res.locals.user,
         });
       }
 
@@ -79,7 +76,6 @@ export class PropertyController {
         property,
         cases,
         aerialPhotoUrl,
-        user: res.locals.user,
         error: null,
         success: null,
       });
@@ -92,12 +88,11 @@ export class PropertyController {
     try {
       const property = await Property.findById(parseInt(req.params.id));
 
-      if (!property) {
+      if (!property || property.user_id !== req.session.userId) {
         res.status(403).render('error', {
           title: 'Ejendomsprofil ikke fundet',
           message: 'Denne ejendomsprofil findes ikke',
           error: null,
-          user: res.locals.user,
         });
         return;
       }
@@ -109,3 +104,5 @@ export class PropertyController {
     }
   }
 }
+
+module.exports = { PropertyController };

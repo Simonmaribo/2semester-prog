@@ -1,6 +1,6 @@
-import { DatabaseController } from '../controllers/DatabaseController.js';
+const { DatabaseController } = require('../controllers/DatabaseController.js');
 
-export const OPERATING_COST_CATEGORIES = [
+const OPERATING_COST_CATEGORIES = [
   'Ejendomsskat',
   'Forsikring',
   'Vedligeholdelse',
@@ -9,7 +9,7 @@ export const OPERATING_COST_CATEGORIES = [
   'Andet',
 ];
 
-export class OperatingCost {
+class OperatingCost {
   constructor(data) {
     this.id = data.id;
     this.case_id = data.case_id;
@@ -17,7 +17,7 @@ export class OperatingCost {
     this.monthly_amount = data.monthly_amount;
   }
 
-  static async findByCaseId(caseId){
+  static async hentForCase(caseId){
     const pool = await DatabaseController.getPool();
     const result = await pool.request()
       .input('caseId', caseId)
@@ -44,3 +44,5 @@ export class OperatingCost {
     }
   }
 }
+
+module.exports = { OperatingCost, OPERATING_COST_CATEGORIES };

@@ -1,6 +1,6 @@
-import { DatabaseController } from '../controllers/DatabaseController.js';
+const { DatabaseController } = require('../controllers/DatabaseController.js');
 
-export class RentalSettings {
+class RentalSettings {
   constructor(data) {
     this.id = data.id;
     this.case_id = data.case_id;
@@ -54,3 +54,5 @@ export class RentalSettings {
     }
   }
 }
+
+module.exports = { RentalSettings };

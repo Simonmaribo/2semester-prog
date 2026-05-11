@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { SimulationController } from '../controllers/SimulationController.js';
+const { Router } = require('express');
+const { SimulationController } = require('../controllers/SimulationController.js');
 
 const router = Router();
 
 router.get('/:id', SimulationController.showSimulation);
 
-export default router;
+module.exports = router;

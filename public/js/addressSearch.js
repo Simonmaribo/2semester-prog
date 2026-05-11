@@ -1,9 +1,5 @@
-// Adressesøgning via DAWA + BBR.
-// Brugeren skriver en adresse og klikker "Søg" (eller trykker Enter).
-// Vi henter forslag fra DAWA og viser dem i en dropdown. Når et forslag
-// vælges, henter vi BBR-data og viser en preview af ejendommen.
+// Adressesøgning via DAWA + BBR
 
-// Hent de HTML-elementer vi skal bruge
 var input = document.getElementById('address-input');
 var searchBtn = document.getElementById('address-search-btn');
 var dropdown = document.getElementById('autocomplete-results');
@@ -35,12 +31,9 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Søg efter adresser via vores Express-proxy til DAWA
 function searchAddresses(query) {
   fetch('/api/dawa/autocomplete?q=' + encodeURIComponent(query))
-    .then((res) => {
-      return res.json()
-    })
+    .then((res) => res.json())
     .then((results) => {
       dropdown.innerHTML = '';
 
@@ -49,7 +42,6 @@ function searchAddresses(query) {
         return;
       }
 
-      // Lav et <div> for hvert forslag i dropdown'en
       results.forEach((item) => {
         var div = document.createElement('div');
         div.className = 'autocomplete-item';
@@ -67,16 +59,11 @@ function searchAddresses(query) {
     });
 }
 
-// Når brugeren vælger en adresse: hent BBR-data direkte.
-// Vi bruger adgangsadresseId + koordinater som autocomplete allerede
-// har returneret, så der ikke er behov for et ekstra DAWA-opslag.
 function selectAddress(item) {
   input.value = item.forslagstekst;
   dropdown.style.display = 'none';
 
-  // DAWA returnerer både huset (adgangsadresseid) og den specifikke
-  // bolig/lejlighed (id). Vi bruger huset til at finde bygningen og
-  // adresseId'et til at vælge den rigtige enhed (vigtigt i etageboliger).
+  // adgangsadresseid = selve adressen, id = den specifikke bolig (bruges ved ejerlejligheder)
   var adgangsadresseId = item.data.adgangsadresseid;
   var adresseId = item.data.id;
 

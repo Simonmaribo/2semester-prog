@@ -1,21 +1,15 @@
-import express from 'express';
-import session from 'express-session';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { requireLogin } from './middleware/authMiddleware.js';
-import { errorHandler } from './middleware/errorHandler.js';
-import { User } from './models/User.js';
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const { requireLogin } = require('./middleware/authMiddleware.js');
+const { errorHandler } = require('./middleware/errorHandler.js');
 
-import authRoutes from './routes/authRoutes.js';
-import propertyRoutes from './routes/propertyRoutes.js';
-import caseRoutes from './routes/caseRoutes.js';
-import simulationRoutes from './routes/simulationRoutes.js';
-import comparisonRoutes from './routes/comparisonRoutes.js';
-import apiRoutes from './routes/apiRoutes.js';
-
-
-// Somehow ville vores app ikke køre med JS modules, så Claude fiksede det med dette trick.
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const authRoutes = require('./routes/authRoutes.js');
+const propertyRoutes = require('./routes/propertyRoutes.js');
+const caseRoutes = require('./routes/caseRoutes.js');
+const simulationRoutes = require('./routes/simulationRoutes.js');
+const comparisonRoutes = require('./routes/comparisonRoutes.js');
+const apiRoutes = require('./routes/apiRoutes.js');
 
 const app = express();
 
@@ -28,24 +22,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-  secret: Math.random().toString(),
+  secret: '1234',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 },
 }));
-
-app.use(async (req, res, next) => {
-  if (req.session.userId) {
-    try {
-      res.locals.user = await User.findById(req.session.userId);
-    } catch {
-      res.locals.user = null;
-    }
-  } else {
-    res.locals.user = null;
-  }
-  next();
-});
 
 app.use('/auth', authRoutes);
 app.use('/api', requireLogin, apiRoutes);
@@ -64,4 +45,4 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler);
 
-export default app;
+module.exports = app;

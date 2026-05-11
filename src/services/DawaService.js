@@ -1,6 +1,6 @@
 const DAWA_BASE_URL = 'https://api.dataforsyningen.dk';
 
-export class DawaService {
+class DawaService {
   static async autocomplete(query) {
     const url = `${DAWA_BASE_URL}/autocomplete?q=${encodeURIComponent(query)}&type=adresse&caretpos=${query.length}`;
 
@@ -12,3 +12,5 @@ export class DawaService {
     return await response.json()
   }
 }
+
+module.exports = { DawaService };

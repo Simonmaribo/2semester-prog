@@ -1,26 +1,19 @@
-import app from './app.js';
-import { config } from './config.js';
-import { DatabaseController } from './controllers/DatabaseController.js';
+const app = require('./app.js');
+const { config } = require('./config.js');
+const { DatabaseController } = require('./controllers/DatabaseController.js');
 
 async function start() {
   try {
-    console.log('Opretter forbindelse til databasen...');
     await DatabaseController.getPool();
-    console.log('Database-forbindelse oprettet.');
+    console.log('db ok');
 
     app.listen(config.PORT, () => {
-      console.log(`Serveren kører på http://localhost:${config.PORT}`);
+      console.log(`kører på http://localhost:${config.PORT}`);
     });
   } catch (error) {
-    console.error('Kunne ikke starte serveren:', error);
+    console.error('kunne ikke starte:', error);
     process.exit(1);
   }
 }
-
-process.on('SIGINT', async () => {
-  console.log('\nLukker server...');
-  await DatabaseController.closePool();
-  process.exit(0);
-});
 
 start();

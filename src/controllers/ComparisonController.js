@@ -1,8 +1,8 @@
-import { InvestmentCase } from '../models/InvestmentCase.js';
-import { SimulationController } from './SimulationController.js';
+const { InvestmentCase } = require('../models/InvestmentCase.js');
+const { SimulationController } = require('./SimulationController.js');
 
-export class ComparisonController {
-  static async showComparison(req, res, next) {
+class ComparisonController {
+  static async showComparison(req, res) {
     try {
       const userId = req.session.userId;
       const case1Id = req.query.case1 ? parseInt(req.query.case1) : null;
@@ -15,7 +15,6 @@ export class ComparisonController {
           title: 'Sammenlign cases',
           allCases,
           comparison: null,
-          user: res.locals.user,
         });
       }
 
@@ -27,7 +26,6 @@ export class ComparisonController {
           title: 'Sammenlign cases',
           allCases,
           comparison: null,
-          user: res.locals.user,
           error: 'En eller begge cases kunne ikke findes.',
         });
       }
@@ -36,10 +34,16 @@ export class ComparisonController {
         title: 'Sammenlign cases',
         allCases,
         comparison: { case1: data1, case2: data2 },
-        user: res.locals.user,
       });
     } catch (error) {
-      next(error);
+      console.error('Fejl i sammenligning:', error);
+      res.status(500).render('error', {
+        title: 'Fejl',
+        message: 'Kunne ikke hente sammenligningen.',
+        error: error.message,
+      });
     }
   }
 }
+
+module.exports = { ComparisonController };
