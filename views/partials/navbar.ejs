@@ -5,7 +5,6 @@
     <a href="/compare" class="<%= typeof activePage !== 'undefined' && activePage === 'compare' ? 'active' : '' %>">Sammenlign</a>
   </nav>
   <div>
-    <span><%= user ? user.name : '' %></span>
     <form action="/auth/logout" method="POST">
       <button type="submit">Log ud</button>
     </form>
