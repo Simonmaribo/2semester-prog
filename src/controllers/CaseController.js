@@ -222,7 +222,7 @@ export class CaseController {
         }))
 
       if (loans.length === 0) {
-        return res.redirect(`/cases/${caseId}?tab=financing&error=Tilføj+mindst+ét+lån+med+betegnelse`);
+        return res.redirect(`/cases/${caseId}?tab=financing&error=Tilføj+mindst+et+lån+med+betegnelse`);
       }
 
       await Loan.replaceByCaseId(caseId, loans);

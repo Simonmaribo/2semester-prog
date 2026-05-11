@@ -13,7 +13,7 @@
 <div class="topbar">
   <a href="/properties/<%= property.id %>" class="muted"><- <%= property.address %></a>
   <div class="actions">
-    <button type="button" class="btn small" data-modal-open="#modal-duplicate">Duplikér</button>
+    <button type="button" class="btn small" data-modal-open="#modal-duplicate">Dupliker</button>
     <form method="POST" action="/cases/<%= investmentCase.id %>/delete" style="display:inline" data-confirm="Slet denne investeringscase?">
       <button type="submit" class="btn link danger">Slet case</button>
     </form>
@@ -49,7 +49,7 @@
 <div class="modal-overlay" id="modal-duplicate">
   <div class="modal">
     <header>
-      <h2>Duplikér case</h2>
+      <h2>Dupliker case</h2>
       <button type="button" class="close" data-modal-close>x</button>
     </header>
     <form method="POST" action="/cases/<%= investmentCase.id %>/duplicate">
@@ -61,7 +61,7 @@
       </div>
       <footer>
         <button type="button" class="btn" data-modal-close>Annuller</button>
-        <button type="submit" class="btn primary">Duplikér</button>
+        <button type="submit" class="btn primary">Dupliker</button>
       </footer>
     </form>
   </div>

@@ -47,7 +47,7 @@ export class SimulationEngine {
       afkastgrad: 0,
     });
 
-    // Simulér år 1 til simulationYears.
+    // Simuler år 1 til simulationYears.
     for (let year = 1; year <= input.simulationYears; year++) {
       // Renoveringer i året lægger deres værdiforøgelse oven i ejendomsværdien.
       const renovationValueThisYear = SimulationEngine.getRenovationValueForYear(
