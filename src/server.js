@@ -4,6 +4,7 @@ const { DatabaseController } = require('./controllers/DatabaseController.js');
 
 async function start() {
   try {
+    console.log("starter db, azure warmer op")
     await DatabaseController.getPool();
     console.log('db ok');
 
