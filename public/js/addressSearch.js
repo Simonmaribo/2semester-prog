@@ -79,7 +79,11 @@ function selectAddress(item) {
   input.value = item.forslagstekst;
   dropdown.style.display = 'none';
 
-  var adgangsadresseId = item.data.id;
+  // DAWA returnerer både huset (adgangsadresseid) og den specifikke
+  // bolig/lejlighed (id). Vi bruger huset til at finde bygningen og
+  // adresseId'et til at vælge den rigtige enhed (vigtigt i etageboliger).
+  var adgangsadresseId = item.data.adgangsadresseid;
+  var adresseId = item.data.id;
 
   // Udfyld skjulte form-felter så de sendes med når formen submittes
   document.getElementById('selected-address').value = item.forslagstekst;
@@ -88,7 +92,7 @@ function selectAddress(item) {
   document.getElementById('selected-lng').value = item.data.x || '';
 
   // Hent BBR-data for adressen
-  fetch('/api/bbr/' + adgangsadresseId)
+  fetch('/api/bbr/' + adgangsadresseId + '?adresseId=' + adresseId)
     .then(function (res) { return res.json(); })
     .then(function (bbr) {
       showPreview(bbr);
@@ -109,7 +113,6 @@ function showPreview(bbr) {
     document.getElementById('selected-year').value = bbr.buildYear || '';
     document.getElementById('selected-area').value = bbr.livingArea || '';
     document.getElementById('selected-rooms').value = bbr.rooms || '';
-    document.getElementById('selected-land').value = bbr.landArea || '';
 
     preview.innerHTML =
       '<h3>Ejendomsdata</h3>' +

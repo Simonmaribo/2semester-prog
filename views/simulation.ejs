@@ -1,94 +1,89 @@
 <%- include('partials/header') %>
-<div class="app-layout">
-  <%- include('partials/navbar', { activePage: '' }) %>
-  <div class="main-content">
-    <div class="topbar">
-      <div class="topbar-title"><a href="/cases/<%= investmentCase.id %>" class="back-link">&larr; <%= investmentCase.name %></a></div>
+<%- include('partials/navbar', { activePage: '' }) %>
+
+<div class="topbar">
+  <a href="/cases/<%= investmentCase.id %>" class="muted"><- <%= investmentCase.name %></a>
+</div>
+
+<div class="page">
+  <h1>Simulering</h1>
+  <p class="muted">
+    <%= property.address %> · <%= investmentCase.simulation_years %> år · <%= investmentCase.annual_appreciation_pct %>% værdistigning p.a.
+  </p>
+
+  <% const lastYear = yearlyResults[yearlyResults.length - 1]; %>
+
+  <div class="grid-auto" style="margin-top:14px">
+    <div class="card">
+      <div class="muted">Udbetaling (inkl. omk.)</div>
+      <strong><%= totalInitialInvestment.toLocaleString('da-DK') %> kr</strong>
     </div>
+    <div class="card">
+      <div class="muted">Ejendomsværdi (år <%= lastYear.year %>)</div>
+      <strong><%= lastYear.propertyValue.toLocaleString('da-DK') %> kr</strong>
+    </div>
+    <div class="card">
+      <div class="muted">Egenkapital (år <%= lastYear.year %>)</div>
+      <strong><%= lastYear.equity.toLocaleString('da-DK') %> kr</strong>
+    </div>
+    <div class="card">
+      <div class="muted">Kumulativt cashflow</div>
+      <strong class="<%= lastYear.cumulativeCashflow >= 0 ? 'positive' : 'negative' %>"><%= lastYear.cumulativeCashflow.toLocaleString('da-DK') %> kr</strong>
+    </div>
+    <div class="card">
+      <div class="muted">Årligt afkast (ROI)</div>
+      <strong><%= lastYear.roi %>%</strong>
+    </div>
+    <div class="card">
+      <div class="muted">Afkastgrad</div>
+      <strong><%= lastYear.afkastgrad %>%</strong>
+    </div>
+  </div>
 
-    <div class="page">
-      <h1>Simulering</h1>
-      <p style="color:#64748b; font-size:13px; margin-bottom:24px">
-        <%= property.address %> &middot; <%= investmentCase.simulation_years %> år &middot; <%= investmentCase.annual_appreciation_pct %>% værdistigning p.a.
-      </p>
+  <div class="grid-2">
+    <div class="card"><h2>Ejendomsværdi, Gæld & Egenkapital</h2><canvas id="equityChart"></canvas></div>
+    <div class="card"><h2>Årligt cashflow</h2><canvas id="cashflowChart"></canvas></div>
+  </div>
 
-      <% const lastYear = yearlyResults[yearlyResults.length - 1]; %>
-
-      <!-- Nøgletal -->
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">Udbetaling (inkl. omk.)</div>
-          <div class="stat-value stat-value-small"><%= totalInitialInvestment.toLocaleString('da-DK') %> kr</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Ejendomsværdi (år <%= lastYear.year %>)</div>
-          <div class="stat-value stat-value-small"><%= lastYear.propertyValue.toLocaleString('da-DK') %> kr</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Egenkapital (år <%= lastYear.year %>)</div>
-          <div class="stat-value stat-value-small"><%= lastYear.equity.toLocaleString('da-DK') %> kr</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Kumulativt cashflow</div>
-          <div class="stat-value stat-value-small <%= lastYear.cumulativeCashflow >= 0 ? 'positive' : 'negative' %>"><%= lastYear.cumulativeCashflow.toLocaleString('da-DK') %> kr</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Årligt afkast (ROI)</div>
-          <div class="stat-value stat-value-small"><%= lastYear.roi %>%</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Afkastgrad</div>
-          <div class="stat-value stat-value-small"><%= lastYear.afkastgrad %>%</div>
-        </div>
-      </div>
-
-      <div class="charts-grid">
-        <div class="card"><h2>Ejendomsværdi, Gæld & Egenkapital</h2><canvas id="equityChart"></canvas></div>
-        <div class="card"><h2>Årligt cashflow</h2><canvas id="cashflowChart"></canvas></div>
-      </div>
-
-      <!-- År-for-år tabel -->
-      <div class="card">
-        <h2>År-for-år oversigt</h2>
-        <div class="table-scroll">
-          <table class="data-table simulation-table">
-            <thead>
-              <tr>
-                <th>År</th>
-                <th>Ejendomsværdi</th>
-                <th>Gæld</th>
-                <th>Egenkapital</th>
-                <th>Rente</th>
-                <th>Afdrag</th>
-                <th>Drift</th>
-                <th>Lejeindtægt</th>
-                <th>Renovering</th>
-                <th>Cashflow</th>
-                <th>Kum. CF</th>
-                <th>ROI %/år</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% for (const yr of yearlyResults) { %>
-                <tr>
-                  <td><strong><%= yr.year %></strong></td>
-                  <td><%= yr.propertyValue.toLocaleString('da-DK') %></td>
-                  <td><%= yr.totalDebt.toLocaleString('da-DK') %></td>
-                  <td><%= yr.equity.toLocaleString('da-DK') %></td>
-                  <td><%= yr.annualInterestPaid.toLocaleString('da-DK') %></td>
-                  <td><%= yr.annualPrincipalPaid.toLocaleString('da-DK') %></td>
-                  <td><%= yr.annualOperatingCosts.toLocaleString('da-DK') %></td>
-                  <td><%= yr.annualRentalIncome.toLocaleString('da-DK') %></td>
-                  <td><%= yr.annualRenovationCosts > 0 ? yr.annualRenovationCosts.toLocaleString('da-DK') : '-' %></td>
-                  <td class="<%= yr.annualCashflow >= 0 ? 'positive' : 'negative' %>"><%= yr.annualCashflow.toLocaleString('da-DK') %></td>
-                  <td class="<%= yr.cumulativeCashflow >= 0 ? 'positive' : 'negative' %>"><%= yr.cumulativeCashflow.toLocaleString('da-DK') %></td>
-                  <td><%= yr.roi %>%</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      </div>
+  <div class="card">
+    <h2>År-for-år oversigt</h2>
+    <div class="scroll-x">
+      <table class="nowrap">
+        <thead>
+          <tr>
+            <th>År</th>
+            <th>Ejendomsværdi</th>
+            <th>Gæld</th>
+            <th>Egenkapital</th>
+            <th>Rente</th>
+            <th>Afdrag</th>
+            <th>Drift</th>
+            <th>Lejeindtægt</th>
+            <th>Renovering</th>
+            <th>Cashflow</th>
+            <th>Kum. CF</th>
+            <th>ROI %/år</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const yr of yearlyResults) { %>
+            <tr>
+              <td><strong><%= yr.year %></strong></td>
+              <td><%= yr.propertyValue.toLocaleString('da-DK') %></td>
+              <td><%= yr.totalDebt.toLocaleString('da-DK') %></td>
+              <td><%= yr.equity.toLocaleString('da-DK') %></td>
+              <td><%= yr.annualInterestPaid.toLocaleString('da-DK') %></td>
+              <td><%= yr.annualPrincipalPaid.toLocaleString('da-DK') %></td>
+              <td><%= yr.annualOperatingCosts.toLocaleString('da-DK') %></td>
+              <td><%= yr.annualRentalIncome.toLocaleString('da-DK') %></td>
+              <td><%= yr.annualRenovationCosts > 0 ? yr.annualRenovationCosts.toLocaleString('da-DK') : '-' %></td>
+              <td class="<%= yr.annualCashflow >= 0 ? 'positive' : 'negative' %>"><%= yr.annualCashflow.toLocaleString('da-DK') %></td>
+              <td class="<%= yr.cumulativeCashflow >= 0 ? 'positive' : 'negative' %>"><%= yr.cumulativeCashflow.toLocaleString('da-DK') %></td>
+              <td><%= yr.roi %>%</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

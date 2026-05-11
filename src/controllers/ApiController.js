@@ -18,8 +18,7 @@ export class ApiController {
 
   static async bbrLookup(req, res) {
     try {
-      const adresseId = req.query.adresseId;
-      const data = await BbrService.getBuildingData(req.params.adgangsadresseId, adresseId);
+      const data = await BbrService.getBuildingData(req.params.adgangsadresseId, req.query.adresseId);
       if (!data) { res.status(404).json({ error: 'Ingen bygningsdata fundet' }); return; }
       console.log(`[BBR] Fundet: ${data.propertyType}, byggeår: ${data.buildYear}, areal: ${data.livingArea} m²`);
       res.json(data);

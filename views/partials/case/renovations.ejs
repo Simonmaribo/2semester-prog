@@ -1,11 +1,11 @@
-<form method="POST" action="/cases/<%= investmentCase.id %>/renovations" class="tab-content active">
-  <div class="step-intro">
-    <h2>Renovering &amp; forbedringer</h2>
-    <p>Valgfrit. Planlæg renoveringer og angiv udgift, forventet værdiforøgelse og tidspunkt.</p>
+<form method="POST" action="/cases/<%= investmentCase.id %>/renovations" class="tab-content">
+  <div class="intro">
+    <h2>Renovering & forbedringer</h2>
+    <p class="muted">Valgfrit. Planlæg renoveringer og angiv udgift, forventet værdiforøgelse og tidspunkt.</p>
   </div>
 
-  <div class="reno-table">
-    <div class="reno-row reno-header">
+  <div class="inputs">
+    <div class="inputs-row header" style="grid-template-columns: 2fr 1.2fr 1.2fr 0.7fr 36px">
       <span>Beskrivelse</span>
       <span>Udgift (DKK)</span>
       <span>Værdiforøgelse</span>
@@ -14,30 +14,30 @@
     </div>
     <div id="reno-list">
       <% renovations.forEach((ren, i) => { %>
-        <div class="reno-row" data-row>
-          <input type="text" class="reno-label" name="renovations[<%= i %>][label]" value="<%= ren.label %>" placeholder="Beskrivelse">
-          <input type="number" class="reno-cost" name="renovations[<%= i %>][cost]" value="<%= ren.cost %>" min="0" placeholder="Udgift">
-          <input type="number" class="reno-value" name="renovations[<%= i %>][value_increase]" value="<%= ren.value_increase %>" min="0" placeholder="Værdiforøgelse">
-          <input type="number" class="reno-month" name="renovations[<%= i %>][month_in_period]" value="<%= ren.month_in_period %>" min="1" max="360" placeholder="Md.">
-          <button type="button" class="loan-remove" data-remove-row>&times;</button>
+        <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.2fr 1.2fr 0.7fr 36px">
+          <input type="text" name="renovations[<%= i %>][label]" value="<%= ren.label %>" placeholder="Beskrivelse">
+          <input type="number" name="renovations[<%= i %>][cost]" value="<%= ren.cost %>" min="0" placeholder="Udgift">
+          <input type="number" name="renovations[<%= i %>][value_increase]" value="<%= ren.value_increase %>" min="0" placeholder="Værdiforøgelse">
+          <input type="number" name="renovations[<%= i %>][month_in_period]" value="<%= ren.month_in_period %>" min="1" max="360" placeholder="Md.">
+          <button type="button" class="remove" data-remove-row>x</button>
         </div>
       <% }) %>
     </div>
   </div>
 
   <template id="reno-row-template">
-    <div class="reno-row" data-row>
-      <input type="text" class="reno-label" name="renovations[__IDX__][label]" placeholder="Beskrivelse">
-      <input type="number" class="reno-cost" name="renovations[__IDX__][cost]" value="0" min="0" placeholder="Udgift">
-      <input type="number" class="reno-value" name="renovations[__IDX__][value_increase]" value="0" min="0" placeholder="Værdiforøgelse">
-      <input type="number" class="reno-month" name="renovations[__IDX__][month_in_period]" value="1" min="1" max="360" placeholder="Md.">
-      <button type="button" class="loan-remove" data-remove-row>&times;</button>
+    <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.2fr 1.2fr 0.7fr 36px">
+      <input type="text" name="renovations[INDEX][label]" placeholder="Beskrivelse">
+      <input type="number" name="renovations[INDEX][cost]" value="0" min="0" placeholder="Udgift">
+      <input type="number" name="renovations[INDEX][value_increase]" value="0" min="0" placeholder="Værdiforøgelse">
+      <input type="number" name="renovations[INDEX][month_in_period]" value="1" min="1" max="360" placeholder="Md.">
+      <button type="button" class="remove" data-remove-row>x</button>
     </div>
   </template>
 
-  <button type="button" class="btn btn-small" style="margin-top: 8px" data-add-row="#reno-list" data-template="#reno-row-template">+ Tilføj renovering</button>
+  <button type="button" class="btn small" data-add-row="#reno-list" data-template="#reno-row-template">+ Tilføj renovering</button>
 
-  <div class="step-footer">
-    <button type="submit" class="btn btn-primary">Gem &amp; fortsæt &rarr;</button>
+  <div class="footer">
+    <button type="submit" class="btn primary">Gem & fortsæt -></button>
   </div>
 </form>

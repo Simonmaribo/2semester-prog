@@ -1,78 +1,59 @@
-<div class="tab-content active">
-  <div class="step-intro">
+<div class="tab-content">
+  <div class="intro">
     <h2>Opsummering</h2>
-    <p>Overblik over din investeringscase.</p>
+    <p class="muted">Overblik over din investeringscase.</p>
   </div>
 
-  <div class="summary-cards">
-    <div class="summary-card">
+  <div class="grid-auto">
+    <div class="card">
       <h3>Investering</h3>
-      <div class="summary-row">
-        <span>Ejendomspris</span>
-        <strong><%= investmentCase.purchase_price.toLocaleString('da-DK') %> kr</strong>
-      </div>
-      <div class="summary-row">
-        <span>Købsomkostninger</span>
-        <strong><%= totals.totalPurchaseCosts.toLocaleString('da-DK') %> kr</strong>
-      </div>
-      <div class="summary-row total-row">
-        <span>Samlet investering</span>
-        <strong><%= totals.totalInvestment.toLocaleString('da-DK') %> kr</strong>
-      </div>
+      <table>
+        <tr><td>Ejendomspris</td><td class="right"><%= investmentCase.purchase_price.toLocaleString('da-DK') %> kr</td></tr>
+        <tr><td>Købsomkostninger</td><td class="right"><%= totals.totalPurchaseCosts.toLocaleString('da-DK') %> kr</td></tr>
+        <tr><td><strong>Samlet investering</strong></td><td class="right"><strong><%= totals.totalInvestment.toLocaleString('da-DK') %> kr</strong></td></tr>
+      </table>
     </div>
 
-    <div class="summary-card">
+    <div class="card">
       <h3>Finansiering</h3>
-      <div class="summary-row">
-        <span>Samlet lån</span>
-        <strong><%= totals.totalLoan.toLocaleString('da-DK') %> kr</strong>
-      </div>
-      <div class="summary-row">
-        <span>Egen udbetaling</span>
-        <strong><%= totals.downPayment.toLocaleString('da-DK') %> kr</strong>
-      </div>
-      <div class="summary-row">
-        <span>Belåningsgrad</span>
-        <strong><%= totals.ltv %>%</strong>
-      </div>
+      <table>
+        <tr><td>Samlet lån</td><td class="right"><%= totals.totalLoan.toLocaleString('da-DK') %> kr</td></tr>
+        <tr><td>Egen udbetaling</td><td class="right"><%= totals.downPayment.toLocaleString('da-DK') %> kr</td></tr>
+        <tr><td>Belåningsgrad</td><td class="right"><%= totals.ltv %>%</td></tr>
+      </table>
     </div>
 
-    <div class="summary-card">
+    <div class="card">
       <h3>Månedlig økonomi</h3>
-      <div class="summary-row">
-        <span>Låneydelser</span>
-        <strong>-<%= totals.monthlyDuring.toLocaleString('da-DK') %> kr</strong>
-      </div>
-      <div class="summary-row">
-        <span>Driftsomkostninger</span>
-        <strong>-<%= totals.totalOperatingMonthly.toLocaleString('da-DK') %> kr</strong>
-      </div>
-      <% if (totals.effectiveRent > 0) { %>
-        <div class="summary-row positive">
-          <span>Lejeindtægt</span>
-          <strong>+<%= totals.effectiveRent.toLocaleString('da-DK') %> kr</strong>
-        </div>
-      <% } %>
-      <div class="summary-row total-row <%= totals.monthlyCashflow >= 0 ? 'positive' : 'negative' %>">
-        <span>Månedligt cashflow</span>
-        <strong><%= totals.monthlyCashflow.toLocaleString('da-DK') %> kr</strong>
-      </div>
+      <table>
+        <tr><td>Låneydelser</td><td class="right">-<%= totals.monthlyDuring.toLocaleString('da-DK') %> kr</td></tr>
+        <tr><td>Driftsomkostninger</td><td class="right">-<%= totals.totalOperatingMonthly.toLocaleString('da-DK') %> kr</td></tr>
+        <% if (totals.effectiveRent > 0) { %>
+          <tr class="positive"><td>Lejeindtægt</td><td class="right">+<%= totals.effectiveRent.toLocaleString('da-DK') %> kr</td></tr>
+        <% } %>
+        <tr class="<%= totals.monthlyCashflow >= 0 ? 'positive' : 'negative' %>">
+          <td><strong>Månedligt cashflow</strong></td>
+          <td class="right"><strong><%= totals.monthlyCashflow.toLocaleString('da-DK') %> kr</strong></td>
+        </tr>
+      </table>
     </div>
 
     <% if (renovations.length > 0) { %>
-      <div class="summary-card">
+      <div class="card">
         <h3>Planlagte renoveringer</h3>
-        <% renovations.forEach((r) => { %>
-          <div class="summary-row">
-            <span><%= r.label %> (måned <%= r.month_in_period %>)</span>
-            <strong><%= r.cost.toLocaleString('da-DK') %> kr</strong>
-          </div>
-        <% }) %>
+        <table>
+          <% renovations.forEach((r) => { %>
+            <tr>
+              <td><%= r.label %> (måned <%= r.month_in_period %>)</td>
+              <td class="right"><%= r.cost.toLocaleString('da-DK') %> kr</td>
+            </tr>
+          <% }) %>
+        </table>
       </div>
     <% } %>
   </div>
 
-  <div class="step-footer centered">
-    <a href="/simulation/<%= investmentCase.id %>" class="btn btn-primary btn-large">Kør simulering &rarr;</a>
+  <div class="footer" style="justify-content:center">
+    <a href="/simulation/<%= investmentCase.id %>" class="btn primary">Kør simulering -></a>
   </div>
 </div>

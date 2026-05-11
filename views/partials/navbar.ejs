@@ -1,15 +1,13 @@
-<nav class="navbar">
-  <div class="navbar-left">
-    <a href="/properties" class="navbar-brand">Ejendom</a>
-    <div class="navbar-links">
-      <a href="/properties" class="navbar-link <%= typeof activePage !== 'undefined' && activePage === 'properties' ? 'active' : '' %>">Mine ejendomme</a>
-      <a href="/compare" class="navbar-link <%= typeof activePage !== 'undefined' && activePage === 'compare' ? 'active' : '' %>">Sammenlign</a>
-    </div>
-  </div>
-  <div class="navbar-right">
-    <span class="navbar-user"><%= user ? user.name : '' %></span>
-    <form action="/auth/logout" method="POST" style="display:inline">
-      <button type="submit" class="navbar-logout">Log ud</button>
+<div class="navbar">
+  <nav>
+    <a href="/properties" class="brand">Ejendom</a>
+    <a href="/properties" class="<%= typeof activePage !== 'undefined' && activePage === 'properties' ? 'active' : '' %>">Mine ejendomme</a>
+    <a href="/compare" class="<%= typeof activePage !== 'undefined' && activePage === 'compare' ? 'active' : '' %>">Sammenlign</a>
+  </nav>
+  <div>
+    <span><%= user ? user.name : '' %></span>
+    <form action="/auth/logout" method="POST">
+      <button type="submit">Log ud</button>
     </form>
   </div>
-</nav>
+</div>

@@ -1,128 +1,95 @@
 <%- include('partials/header') %>
-<div class="app-layout">
-  <%- include('partials/navbar', { activePage: 'properties' }) %>
-  <div class="main-content">
-    <div class="topbar">
-      <div class="topbar-title">
-        <a href="/properties" class="back-link">&larr; Ejendomme</a>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn btn-primary" onclick="document.getElementById('modal-case').classList.add('active')">+ Ny case</button>
-        <form method="POST" action="/properties/<%= property.id %>/delete" class="inline" onsubmit="return confirm('Slet ejendom og alle tilknyttede cases?')">
-          <button type="submit" class="btn btn-ghost btn-small" style="color: #dc2626">Slet ejendom</button>
-        </form>
-      </div>
-    </div>
+<%- include('partials/navbar', { activePage: 'properties' }) %>
 
-    <div class="page">
-
-      <!-- Top: kortvisning til venstre, detaljer til højre -->
-      <div class="topGrid">
-
-        <!-- Kortvisning -->
-        <div class="card mapCard">
-          <div class="cardTop">
-            <h2>Kortvisning</h2>
-          </div>
-          <div class="property-map">
-            <% if (aerialPhotoUrl) { %>
-              <img src="<%= aerialPhotoUrl %>" alt="Luftfoto af <%= property.address %>" class="mapImg">
-            <% } else { %>
-              <div class="mapPlaceholder">Ingen koordinater tilgængelige for denne ejendom.</div>
-            <% } %>
-          </div>
-        </div>
-
-        <!-- Detaljer -->
-        <div class="card infoCard">
-          <div class="propHeader">
-            <h1 class="propTitle"><%= property.address %></h1>
-            <div class="propMeta">
-              <span><%= property.property_type || 'Ukendt type' %></span>
-              <% if (property.build_year) { %><span>Byggeår <%= property.build_year %></span><% } %>
-              <span>Oprettet <%= new Date(property.created_at).toLocaleDateString('da-DK') %></span>
-            </div>
-          </div>
-
-          <div class="info-list">
-            <div class="info-row">
-              <span class="info-label">Boligareal</span>
-              <span class="info-value"><%= property.living_area ? property.living_area + ' m²' : '-' %></span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Værelser</span>
-              <span class="info-value"><%= property.rooms || '-' %></span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Byggeår</span>
-              <span class="info-value"><%= property.build_year || '-' %></span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Type</span>
-              <span class="info-value"><%= property.property_type || '-' %></span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Cases -->
-      <div class="card">
-        <div class="cardTop">
-          <h2>Investeringscases</h2>
-          <button class="btn btn-primary btn-small" onclick="document.getElementById('modal-case').classList.add('active')">+ Ny case</button>
-        </div>
-
-        <% if (cases.length === 0) { %>
-          <p class="empty-state">Ingen cases endnu. Klik "+ Ny case" for at oprette en.</p>
-        <% } else { %>
-          <div class="loans-table">
-            <div class="loan-row loan-header">
-              <span>Navn</span>
-              <span>Oprettet</span>
-              <span></span>
-            </div>
-            <% for (const c of cases) { %>
-              <div class="loan-row" style="grid-template-columns: 2fr 1fr auto;">
-                <span style="font-weight: 500; padding: 10px;"><%= c.name %></span>
-                <span style="padding: 10px; color: #64748b;"><%= new Date(c.created_at).toLocaleDateString('da-DK') %></span>
-                <span style="padding: 6px 10px; display: flex; gap: 6px;">
-                  <a href="/cases/<%= c.id %>" class="btn btn-small">Rediger</a>
-                  <a href="/simulation/<%= c.id %>" class="btn btn-primary btn-small">Simulering</a>
-                </span>
-              </div>
-            <% } %>
-          </div>
-        <% } %>
-      </div>
-
-    </div>
+<div class="topbar">
+  <a href="/properties" class="muted"><- Ejendomme</a>
+  <div class="actions">
+    <button class="btn primary" onclick="document.getElementById('modal-case').classList.add('active')">+ Ny case</button>
+    <form method="POST" action="/properties/<%= property.id %>/delete" style="display:inline" onsubmit="return confirm('Slet ejendom og alle tilknyttede cases?')">
+      <button type="submit" class="btn link danger">Slet ejendom</button>
+    </form>
   </div>
 </div>
 
-<!-- Modal: Opret case -->
+<div class="page">
+  <div class="grid-2">
+    <div class="card">
+      <h2>Kortvisning</h2>
+      <div class="map">
+        <% if (aerialPhotoUrl) { %>
+          <img src="<%= aerialPhotoUrl %>" alt="Luftfoto af <%= property.address %>">
+        <% } else { %>
+          <div class="placeholder">Ingen koordinater tilgængelige for denne ejendom.</div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1><%= property.address %></h1>
+      <div class="muted">
+        <%= property.property_type || 'Ukendt type' %>
+        <% if (property.build_year) { %> · Byggeår <%= property.build_year %><% } %>
+        · Oprettet <%= new Date(property.created_at).toLocaleDateString('da-DK') %>
+      </div>
+
+      <table style="margin-top:14px">
+        <tr><td>Boligareal</td><td class="right"><%= property.living_area ? property.living_area + ' m²' : '-' %></td></tr>
+        <tr><td>Værelser</td><td class="right"><%= property.rooms || '-' %></td></tr>
+        <tr><td>Byggeår</td><td class="right"><%= property.build_year || '-' %></td></tr>
+        <tr><td>Type</td><td class="right"><%= property.property_type || '-' %></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Investeringscases</h2>
+
+    <% if (cases.length === 0) { %>
+      <p class="muted">Ingen cases endnu.</p>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr><th>Navn</th><th>Oprettet</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% for (const c of cases) { %>
+            <tr>
+              <td><%= c.name %></td>
+              <td class="muted"><%= new Date(c.created_at).toLocaleDateString('da-DK') %></td>
+              <td class="right">
+                <a href="/cases/<%= c.id %>" class="btn small">Rediger</a>
+                <a href="/simulation/<%= c.id %>" class="btn small primary">Simulering</a>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-case">
   <div class="modal">
-    <div class="modal-header">
+    <header>
       <h2>Ny investeringscase</h2>
-      <button class="modal-close" onclick="document.getElementById('modal-case').classList.remove('active')">&times;</button>
-    </div>
+      <button class="close" onclick="document.getElementById('modal-case').classList.remove('active')">x</button>
+    </header>
     <form method="POST" action="/cases">
-      <div class="modal-body">
+      <div class="body">
         <input type="hidden" name="property_id" value="<%= property.id %>">
-        <div class="form-group">
+        <div class="field">
           <label for="case-name">Navn</label>
           <input type="text" id="case-name" name="name" required placeholder="Fx Scenarie 1 - 5% udbetaling">
         </div>
-        <div class="form-group">
+        <div class="field">
           <label for="case-description">Beskrivelse</label>
-          <textarea id="case-description" name="description" rows="3" placeholder="Kort beskrivelse af investeringscasen (valgfrit)"></textarea>
+          <textarea id="case-description" name="description" rows="3"></textarea>
         </div>
       </div>
-      <div class="modal-footer">
+      <footer>
         <button type="button" class="btn" onclick="document.getElementById('modal-case').classList.remove('active')">Annuller</button>
-        <button type="submit" class="btn btn-primary">Opret case</button>
-      </div>
+        <button type="submit" class="btn primary">Opret case</button>
+      </footer>
     </form>
   </div>
 </div>

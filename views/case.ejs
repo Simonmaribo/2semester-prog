@@ -8,78 +8,61 @@
     { id: 'summary',     label: 'Opsummering' },
   ];
 %>
-<div class="app-layout">
-  <%- include('partials/navbar', { activePage: '' }) %>
-  <div class="main-content">
+<%- include('partials/navbar', { activePage: '' }) %>
 
-    <div class="topbar">
-      <div class="topbar-title">
-        <a href="/properties/<%= property.id %>" class="back-link">&larr; <%= property.address %></a>
-      </div>
-      <div class="topbar-actions">
-        <button type="button" class="btn btn-small" data-modal-open="#modal-duplicate">Duplikér</button>
-        <form method="POST" action="/cases/<%= investmentCase.id %>/delete" class="inline" data-confirm="Slet denne investeringscase?">
-          <button type="submit" class="btn btn-ghost btn-small" style="color: #dc2626">Slet case</button>
-        </form>
-      </div>
-    </div>
-
-    <div class="page">
-      <div class="case-header">
-        <div>
-          <h1><%= investmentCase.name %></h1>
-        </div>
-      </div>
-
-      <% if (flashSuccess) { %>
-        <div class="alert alert-success"><%= flashSuccess %></div>
-      <% } %>
-      <% if (flashError) { %>
-        <div class="alert alert-error"><%= flashError %></div>
-      <% } %>
-
-      <div class="steps">
-        <% TABS.forEach((t, i) => { %>
-          <a href="/cases/<%= investmentCase.id %>?tab=<%= t.id %>"
-             class="step-btn<%= t.id === tab ? ' active' : '' %>">
-            <span class="step-number"><%= i + 1 %></span>
-            <span class="step-label"><%= t.label %></span>
-          </a>
-        <% }) %>
-      </div>
-
-      <% if (tab === 'purchase') { %>
-        <%- include('partials/case/purchase') %>
-      <% } else if (tab === 'financing') { %>
-        <%- include('partials/case/financing') %>
-      <% } else if (tab === 'operating') { %>
-        <%- include('partials/case/operating') %>
-      <% } else if (tab === 'renovations') { %>
-        <%- include('partials/case/renovations') %>
-      <% } else if (tab === 'summary') { %>
-        <%- include('partials/case/summary') %>
-      <% } %>
-    </div>
+<div class="topbar">
+  <a href="/properties/<%= property.id %>" class="muted"><- <%= property.address %></a>
+  <div class="actions">
+    <button type="button" class="btn small" data-modal-open="#modal-duplicate">Duplikér</button>
+    <form method="POST" action="/cases/<%= investmentCase.id %>/delete" style="display:inline" data-confirm="Slet denne investeringscase?">
+      <button type="submit" class="btn link danger">Slet case</button>
+    </form>
   </div>
+</div>
+
+<div class="page">
+  <h1><%= investmentCase.name %></h1>
+
+  <% if (flashSuccess) { %><div class="alert success"><%= flashSuccess %></div><% } %>
+  <% if (flashError) { %><div class="alert error"><%= flashError %></div><% } %>
+
+  <div class="tabs">
+    <% TABS.forEach((t) => { %>
+      <a href="/cases/<%= investmentCase.id %>?tab=<%= t.id %>"
+         class="<%= t.id === tab ? 'active' : '' %>"><%= t.label %></a>
+    <% }) %>
+  </div>
+
+  <% if (tab === 'purchase') { %>
+    <%- include('partials/case/purchase') %>
+  <% } else if (tab === 'financing') { %>
+    <%- include('partials/case/financing') %>
+  <% } else if (tab === 'operating') { %>
+    <%- include('partials/case/operating') %>
+  <% } else if (tab === 'renovations') { %>
+    <%- include('partials/case/renovations') %>
+  <% } else if (tab === 'summary') { %>
+    <%- include('partials/case/summary') %>
+  <% } %>
 </div>
 
 <div class="modal-overlay" id="modal-duplicate">
   <div class="modal">
-    <div class="modal-header">
+    <header>
       <h2>Duplikér case</h2>
-      <button type="button" class="modal-close" data-modal-close>&times;</button>
-    </div>
+      <button type="button" class="close" data-modal-close>x</button>
+    </header>
     <form method="POST" action="/cases/<%= investmentCase.id %>/duplicate">
-      <div class="modal-body">
-        <div class="form-group">
+      <div class="body">
+        <div class="field">
           <label for="duplicate-name">Navn på kopi</label>
           <input type="text" id="duplicate-name" name="name" value="<%= investmentCase.name %> (kopi)" required>
         </div>
       </div>
-      <div class="modal-footer">
+      <footer>
         <button type="button" class="btn" data-modal-close>Annuller</button>
-        <button type="submit" class="btn btn-primary">Duplikér</button>
-      </div>
+        <button type="submit" class="btn primary">Duplikér</button>
+      </footer>
     </form>
   </div>
 </div>

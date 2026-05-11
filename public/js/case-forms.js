@@ -9,8 +9,8 @@ document.querySelectorAll('[data-add-row]').forEach(function (btn) {
 
     // Unikt index så felter ikke kolliderer. Serveren bruger Object.values()
     // så selve værdien er ligegyldig, bare den er unik pr. række.
-    var idx = Date.now();
-    var html = template.innerHTML.replace(/__IDX__/g, String(idx));
+    var idx = Math.floor(Math.random() * 1000000);
+    var html = template.innerHTML.replaceAll('INDEX', idx);
 
     var wrapper = document.createElement('div');
     wrapper.innerHTML = html.trim();

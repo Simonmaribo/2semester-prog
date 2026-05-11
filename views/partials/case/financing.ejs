@@ -1,55 +1,55 @@
-<form method="POST" action="/cases/<%= investmentCase.id %>/financing" class="tab-content active">
-  <div class="step-intro">
+<form method="POST" action="/cases/<%= investmentCase.id %>/financing" class="tab-content">
+  <div class="intro">
     <h2>Finansiering</h2>
-    <p>Opsæt dine lån. Du kan fjerne banklånet og justere beløbene efter behov.</p>
+    <p class="muted">Opsæt dine lån. Du kan fjerne banklånet og justere beløbene efter behov.</p>
   </div>
 
-  <div class="loans-table">
-    <div class="loan-row loan-header">
+  <div class="inputs">
+    <div class="inputs-row header" style="grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 36px">
       <span>Betegnelse</span>
       <span>Beløb</span>
       <span>Rente %</span>
       <span>Løbetid</span>
-      <span>Afdr.fri</span>
+      <span>Afdragsfri (år)</span>
       <span>Type</span>
       <span></span>
     </div>
     <div id="loans-list">
       <% loansForForm.forEach((loan, i) => { %>
-        <div class="loan-row" data-row>
-          <input type="text" class="loan-label" name="loans[<%= i %>][label]" value="<%= loan.label %>" placeholder="Betegnelse">
-          <input type="number" class="loan-amount" name="loans[<%= i %>][amount]" value="<%= loan.amount %>" min="0" placeholder="Beløb">
-          <input type="number" class="loan-rate" name="loans[<%= i %>][interest_rate_pct]" value="<%= loan.interest_rate_pct %>" min="0" placeholder="Rente %">
-          <input type="number" class="loan-term" name="loans[<%= i %>][term_years]" value="<%= loan.term_years %>" min="1" max="50" placeholder="År">
-          <input type="number" class="loan-io" name="loans[<%= i %>][interest_only_years]" value="<%= loan.interest_only_years || 0 %>" min="0" max="30" placeholder="Afdr.fri">
-          <select class="loan-type" name="loans[<%= i %>][loan_type]">
-            <option value="fixed"<%= loan.loan_type === 'fixed' ? ' selected' : '' %>>Fastforrentet</option>
+        <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 36px">
+          <input type="text" name="loans[<%= i %>][label]" value="<%= loan.label %>" placeholder="Betegnelse">
+          <input type="number" name="loans[<%= i %>][amount]" value="<%= loan.amount %>" min="0" placeholder="Beløb">
+          <input type="number" name="loans[<%= i %>][interest_rate_pct]" value="<%= loan.interest_rate_pct %>" min="0" step="0.01" placeholder="Rente %">
+          <input type="number" name="loans[<%= i %>][term_years]" value="<%= loan.term_years %>" min="1" max="50" placeholder="År">
+          <input type="number" name="loans[<%= i %>][interest_only_years]" value="<%= loan.interest_only_years || 0 %>" min="0" max="30" placeholder="Afdragsfri (år)">
+          <select name="loans[<%= i %>][loan_type]">
+            <option value="fixed"<%= loan.loan_type === 'fixed' ? ' selected' : '' %>>Fast</option>
             <option value="variable"<%= loan.loan_type === 'variable' ? ' selected' : '' %>>Variabel</option>
           </select>
-          <button type="button" class="loan-remove" data-remove-row>&times;</button>
+          <button type="button" class="remove" data-remove-row>x</button>
         </div>
       <% }) %>
     </div>
   </div>
 
   <template id="loans-row-template">
-    <div class="loan-row" data-row>
-      <input type="text" class="loan-label" name="loans[__IDX__][label]" placeholder="Betegnelse">
-      <input type="number" class="loan-amount" name="loans[__IDX__][amount]" value="0" min="0" placeholder="Beløb">
-      <input type="number" class="loan-rate" name="loans[__IDX__][interest_rate_pct]" value="3.5" min="0" placeholder="Rente %">
-      <input type="number" class="loan-term" name="loans[__IDX__][term_years]" value="30" min="1" max="50" placeholder="År">
-      <input type="number" class="loan-io" name="loans[__IDX__][interest_only_years]" value="0" min="0" max="30" placeholder="Afdr.fri">
-      <select class="loan-type" name="loans[__IDX__][loan_type]">
-        <option value="fixed" selected>Fastforrentet</option>
+    <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 36px">
+      <input type="text" name="loans[INDEX][label]" placeholder="Betegnelse">
+      <input type="number" name="loans[INDEX][amount]" value="0" min="0" placeholder="Beløb">
+      <input type="number" name="loans[INDEX][interest_rate_pct]" value="3.5" min="0" step="0.01" placeholder="Rente %">
+      <input type="number" name="loans[INDEX][term_years]" value="30" min="1" max="50" placeholder="År">
+      <input type="number" name="loans[INDEX][interest_only_years]" value="0" min="0" max="30" placeholder="Afdragsfri (år)">
+      <select name="loans[INDEX][loan_type]">
+        <option value="fixed" selected>Fast</option>
         <option value="variable">Variabel</option>
       </select>
-      <button type="button" class="loan-remove" data-remove-row>&times;</button>
+      <button type="button" class="remove" data-remove-row>x</button>
     </div>
   </template>
 
-  <button type="button" class="btn btn-small" style="margin-top: 8px" data-add-row="#loans-list" data-template="#loans-row-template">+ Tilføj lån</button>
+  <button type="button" class="btn small" data-add-row="#loans-list" data-template="#loans-row-template">+ Tilføj lån</button>
 
-  <div class="step-footer">
-    <button type="submit" class="btn btn-primary">Gem &amp; fortsæt &rarr;</button>
+  <div class="footer">
+    <button type="submit" class="btn primary">Gem & fortsæt -></button>
   </div>
 </form>
