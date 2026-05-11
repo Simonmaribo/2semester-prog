@@ -12,7 +12,7 @@ export class SimulationController {
     try {
       const caseId = parseInt(req.params.id);
     
-      const { investmentCase, property, result } = SimulationController.getCaseSimulation(caseId, req.session.userId)
+      const { investmentCase, property, result } = await SimulationController.getCaseSimulation(caseId, req.session.userId)
 
       if (!investmentCase) {
         return res.status(404).render('error', {
@@ -36,7 +36,9 @@ export class SimulationController {
 
   static async getCaseSimulation(caseId, userId) {
     const investmentCase = await InvestmentCase.findByIdForUser(caseId, userId);
-    if (!investmentCase) return null;
+    if (!investmentCase) {
+      return null;
+    }
 
     const property = await Property.findById(investmentCase.property_id);
 
