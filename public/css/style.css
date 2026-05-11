@@ -76,12 +76,21 @@ p { margin-bottom: 8px; }
   color: #fff;
 }
 
-.navbar a { color: #bbb; }
-.navbar a:hover,
-.navbar a.active { color: #fff; }
-.navbar .brand { color: #fff; font-weight: 600; }
-.navbar nav { display: flex; gap: 16px; font-size: 13px; }
-.navbar form { display: inline; }
+.navbar a {
+  color: #bbb;
+}
+.navbar a:hover {
+  color: #fff;
+}
+.navbar .brand {
+  color: #fff; font-weight: 600;
+}
+.navbar nav {
+  display: flex; gap: 16px; font-size: 13px;
+}
+.navbar form {
+  display: inline;
+}
 .navbar button {
   background: none;
   border: none;
@@ -90,7 +99,9 @@ p { margin-bottom: 8px; }
   cursor: pointer;
 }
 
-.navbar button:hover { color: #fff; }
+.navbar button:hover {
+  color: #fff;
+}
 
 /* Topbar */
 .topbar {
@@ -120,7 +131,9 @@ p { margin-bottom: 8px; }
   cursor: pointer;
 }
 
-.btn:hover { background: #f3f3f3; }
+.btn:hover {
+  background: #f3f3f3;
+}
 
 .btn.primary {
   background: #111;
@@ -128,11 +141,18 @@ p { margin-bottom: 8px; }
   border-color: #111;
 }
 
-.btn.primary:hover { background: #333; }
+.btn.primary:hover {
+  background: #333;
+}
 
-.btn.danger { color: #c00; }
+.btn.danger {
+  color: #c00;
+}
 
-.btn.small { padding: 3px 8px; font-size: 12px; }
+.btn.small {
+  padding: 3px 8px;
+  font-size: 12px;
+}
 
 .btn.link {
   border: none;
@@ -141,10 +161,15 @@ p { margin-bottom: 8px; }
   padding: 4px;
 }
 
-.btn.link:hover { background: none; color: #111; }
+.btn.link:hover {
+  background: none;
+  color: #111;
+}
 
 /* Forms */
-.field { margin-bottom: 12px; }
+.field { 
+  margin-bottom: 12px;
+}
 
 label {
   display: block;
@@ -174,8 +199,16 @@ input[type="checkbox"] {
   border: 1px solid;
 }
 
-.alert.error { background: #fef2f2; color: #c00; border-color: #fcc; }
-.alert.success { background: #f0fdf4; color: #0a0; border-color: #cfc; }
+.alert.error { 
+  background: #fef2f2; 
+  color: #c00; 
+  border-color: #fcc; 
+}
+.alert.success {
+  background: #f0fdf4; 
+  color: #0a0; 
+  border-color: #cfc;
+}
 
 /* Card */
 .card {
@@ -192,7 +225,9 @@ input[type="checkbox"] {
   padding: 14px;
 }
 
-.card-link:hover { background: #f7f7f7; }
+.card-link:hover {
+  background: #f7f7f7;
+}
 
 /* Tables */
 table {
@@ -233,7 +268,9 @@ thead th {
   border-right: 1px solid #ddd;
 }
 
-.tabs a:last-child { border-right: none; }
+.tabs a:last-child {
+  border-right: none;
+}
 
 .tabs a.active {
   color: #111;
@@ -273,7 +310,9 @@ thead th {
   border-bottom: 1px solid #eee;
 }
 
-.inputs-row:last-child { border-bottom: none; }
+.inputs-row:last-child { 
+  border-bottom: none; 
+}
 
 .inputs-row.header {
   background: #f3f3f3;
@@ -282,7 +321,9 @@ thead th {
   color: #555;
 }
 
-.inputs-row.header > * { padding: 7px 9px; }
+.inputs-row.header > * { 
+  padding: 7px 9px; 
+}
 
 .inputs-row input,
 .inputs-row select {
@@ -293,7 +334,9 @@ thead th {
   background: transparent;
 }
 
-.inputs-row input[type="number"] { text-align: right; }
+.inputs-row input[type="number"] { 
+  text-align: right;
+}
 
 .inputs-row .remove {
   background: none;
@@ -305,7 +348,9 @@ thead th {
   width: auto;
 }
 
-.inputs-row .remove:hover { color: #c00; }
+.inputs-row .remove:hover {
+  color: #c00; 
+}
 
 /* Modal */
 .modal-overlay {
@@ -318,7 +363,9 @@ thead th {
   justify-content: center;
 }
 
-.modal-overlay.active { display: flex; }
+.modal-overlay.active { 
+  display: flex; 
+}
 
 .modal {
   background: #fff;
@@ -335,9 +382,15 @@ thead th {
   align-items: center;
 }
 
-.modal header { border-bottom: 1px solid #eee; }
-.modal footer { border-top: 1px solid #eee; gap: 8px; justify-content: flex-end; }
-.modal .body { padding: 18px; }
+.modal header { 
+  border-bottom: 1px solid #eee; 
+}
+.modal footer { 
+  border-top: 1px solid #eee; gap: 8px; justify-content: flex-end;
+}
+.modal .body { 
+  padding: 18px; 
+}
 
 .modal .close {
   background: none;
@@ -370,7 +423,9 @@ thead th {
   font-size: 13px;
 }
 
-.autocomplete-item:hover { background: #f3f3f3; }
+.autocomplete-item:hover {
+  background: #f3f3f3;
+}
 
 /* Map */
 .map {
@@ -379,7 +434,12 @@ thead th {
   overflow: hidden;
 }
 
-.map img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.map img { 
+  width: 100%;
+  height: 100%; 
+  object-fit: cover; 
+  display: block;
+}
 
 .map .placeholder {
   width: 100%;

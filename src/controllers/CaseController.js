@@ -60,10 +60,9 @@ export class CaseController {
 
       const property = await Property.findById(parseInt(property_id));
       if (!property || property.user_id !== req.session.userId) {
-        res.status(403).render('error', {
+        return res.status(403).render('error', {
           title: 'Ejendomsprofil ikke fundet', message: 'Ejendomsprofil ikke fundet', error: null, user: res.locals.user
         });
-        return;
       }
 
       const investmentCase = await InvestmentCase.create({
@@ -83,14 +82,11 @@ export class CaseController {
       const investmentCase = await InvestmentCase.findByIdForUser(parseInt(req.params.id), req.session.userId);
 
       if (!investmentCase) {
-        res.status(404).render('error', {
+        return res.status(404).render('error', {
           title: 'Ikke fundet', message: 'Investeringscase ikke fundet.', error: null, user: res.locals.user
         });
-        return;
       }
-
       const property = await Property.findById(investmentCase.property_id);
-
       const purchaseCosts = await PurchaseCost.findByCaseId(investmentCase.id);
       const loans = await Loan.findByCaseId(investmentCase.id);
       const renovations = await Renovation.findByCaseId(investmentCase.id);
@@ -99,7 +95,7 @@ export class CaseController {
 
       const requestedTab = req.query.tab;
       let tab = 'purchase';
-      if (typeof requestedTab === 'string' && VALID_TABS.indexOf(requestedTab) !== -1) {
+      if (VALID_TABS.indexOf(requestedTab) !== -1) {
         tab = requestedTab;
       }
 
@@ -188,8 +184,7 @@ export class CaseController {
       const caseId = parseInt(req.params.id);
       const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
       if (!investmentCase) {
-        res.status(403).redirect('/properties');
-        return;
+        return res.status(403).redirect('/properties');
       }
 
       await InvestmentCase.update(caseId, {
@@ -200,7 +195,6 @@ export class CaseController {
 
       const costs = CaseController.parseArrayInput(req.body.costs)
         .map((c) => ({ label: (c.label || '').trim(), amount: parseFloat(c.amount) || 0 }))
-        .filter((c) => c.label);
       await PurchaseCost.replaceByCaseId(caseId, costs);
 
       CaseController.redirectToStep(res, caseId, 'purchase', 'Købsdata gemt');
@@ -214,8 +208,7 @@ export class CaseController {
       const caseId = parseInt(req.params.id);
       const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
       if (!investmentCase) {
-        res.status(403).redirect('/properties');
-        return;
+        return res.status(403).redirect('/properties');
       }
 
       const loans = CaseController.parseArrayInput(req.body.loans)
@@ -227,11 +220,9 @@ export class CaseController {
           interest_only_years: parseInt(l.interest_only_years) || 0,
           loan_type: l.loan_type || 'fixed',
         }))
-        .filter((l) => l.label);
 
       if (loans.length === 0) {
-        res.redirect(`/cases/${caseId}?tab=financing&error=Tilføj+mindst+ét+lån+med+betegnelse`);
-        return;
+        return res.redirect(`/cases/${caseId}?tab=financing&error=Tilføj+mindst+ét+lån+med+betegnelse`);
       }
 
       await Loan.replaceByCaseId(caseId, loans);
@@ -246,8 +237,7 @@ export class CaseController {
       const caseId = parseInt(req.params.id);
       const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
       if (!investmentCase) {
-        res.status(403).redirect('/properties');
-        return;
+        return res.status(403).redirect('/properties');
       }
 
       const items = CaseController.parseArrayInput(req.body.operating_costs)
@@ -255,7 +245,6 @@ export class CaseController {
           category: (c.category || '').trim(),
           monthly_amount: parseFloat(c.monthly_amount) || 0,
         }))
-        .filter((c) => c.category);
       await OperatingCost.replaceByCaseId(caseId, items);
 
       await RentalSettings.upsert(caseId, {
@@ -276,8 +265,7 @@ export class CaseController {
       const caseId = parseInt(req.params.id);
       const investmentCase = await InvestmentCase.findByIdForUser(caseId, req.session.userId);
       if (!investmentCase) {
-        res.status(403).redirect('/properties');
-        return;
+        return res.status(403).redirect('/properties');
       }
 
       const renovations = CaseController.parseArrayInput(req.body.renovations)
@@ -287,7 +275,6 @@ export class CaseController {
           value_increase: parseFloat(r.value_increase) || 0,
           month_in_period: parseInt(r.month_in_period) || 1,
         }))
-        .filter((r) => r.label);
       await Renovation.replaceByCaseId(caseId, renovations);
 
       CaseController.redirectToStep(res, caseId, 'renovations', 'Renoveringer gemt');
@@ -300,8 +287,7 @@ export class CaseController {
     try {
       const investmentCase = await InvestmentCase.findByIdForUser(parseInt(req.params.id), req.session.userId);
       if (!investmentCase) {
-        res.status(403).redirect('/properties');
-        return;
+        return res.status(403).redirect('/properties');
       }
 
       const propertyId = investmentCase.property_id;
@@ -316,8 +302,7 @@ export class CaseController {
     try {
       const investmentCase = await InvestmentCase.findByIdForUser(parseInt(req.params.id), req.session.userId);
       if (!investmentCase) {
-        res.status(403).redirect('/properties');
-        return;
+        return res.status(403).redirect('/properties');
       }
 
       const newName = req.body.name || `${investmentCase.name} (kopi)`;

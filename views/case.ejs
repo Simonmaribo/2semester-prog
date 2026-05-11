@@ -8,7 +8,7 @@
     { id: 'summary',     label: 'Opsummering' },
   ];
 %>
-<%- include('partials/navbar', { activePage: '' }) %>
+<%- include('partials/navbar') %>
 
 <div class="topbar">
   <a href="/properties/<%= property.id %>" class="muted"><- <%= property.address %></a>

@@ -1,8 +1,8 @@
 <div class="navbar">
   <nav>
     <a href="/properties" class="brand">Ejendom</a>
-    <a href="/properties" class="<%= typeof activePage !== 'undefined' && activePage === 'properties' ? 'active' : '' %>">Mine ejendomme</a>
-    <a href="/compare" class="<%= typeof activePage !== 'undefined' && activePage === 'compare' ? 'active' : '' %>">Sammenlign</a>
+    <a href="/properties">Mine ejendomme</a>
+    <a href="/compare">Sammenlign</a>
   </nav>
   <div>
     <form action="/auth/logout" method="POST">

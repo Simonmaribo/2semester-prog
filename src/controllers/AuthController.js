@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt';
 import { User } from '../models/User.js';
 
-const SALT_ROUNDS = 12;
-
 export class AuthController {
   static showLogin(req, res) {
     res.render('auth/login', { title: 'Log ind', error: null, user: null });
@@ -98,7 +96,7 @@ export class AuthController {
         return;
       }
 
-      const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+      const passwordHash = await bcrypt.hash(password, 12);
       const newUser = await User.create(email, passwordHash, name);
 
       req.session.userId = newUser.id;

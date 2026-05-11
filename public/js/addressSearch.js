@@ -24,15 +24,8 @@ function triggerSearch() {
 
 searchBtn.addEventListener('click', triggerSearch);
 
-input.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    triggerSearch();
-  }
-});
-
 // Luk dropdown hvis brugeren klikker udenfor
-document.addEventListener('click', function (e) {
+document.addEventListener('click', (e) => {
   if (
     !input.contains(e.target) &&
     !dropdown.contains(e.target) &&
@@ -45,8 +38,10 @@ document.addEventListener('click', function (e) {
 // Søg efter adresser via vores Express-proxy til DAWA
 function searchAddresses(query) {
   fetch('/api/dawa/autocomplete?q=' + encodeURIComponent(query))
-    .then(function (res) { return res.json(); })
-    .then(function (results) {
+    .then((res) => {
+      return res.json()
+    })
+    .then((results) => {
       dropdown.innerHTML = '';
 
       if (results.length === 0) {
@@ -55,11 +50,11 @@ function searchAddresses(query) {
       }
 
       // Lav et <div> for hvert forslag i dropdown'en
-      results.forEach(function (item) {
+      results.forEach((item) => {
         var div = document.createElement('div');
         div.className = 'autocomplete-item';
         div.textContent = item.forslagstekst;
-        div.addEventListener('click', function () {
+        div.addEventListener('click', () => {
           selectAddress(item);
         });
         dropdown.appendChild(div);
@@ -67,7 +62,7 @@ function searchAddresses(query) {
 
       dropdown.style.display = 'block';
     })
-    .catch(function (err) {
+    .catch((err) => {
       console.error('Fejl ved adressesøgning:', err);
     });
 }
@@ -93,11 +88,13 @@ function selectAddress(item) {
 
   // Hent BBR-data for adressen
   fetch('/api/bbr/' + adgangsadresseId + '?adresseId=' + adresseId)
-    .then(function (res) { return res.json(); })
-    .then(function (bbr) {
+    .then((res) => { 
+      return res.json(); 
+    })
+    .then((bbr) =>{
       showPreview(bbr);
     })
-    .catch(function (err) {
+    .catch((err) => {
       console.error('Fejl ved BBR-opslag:', err);
       preview.innerHTML = '<p>Fejl ved hentning af bygningsdata.</p>';
       form.style.display = 'block';

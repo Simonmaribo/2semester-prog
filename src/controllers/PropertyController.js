@@ -27,14 +27,13 @@ export class PropertyController {
 
       if (!address) {
         const properties = await Property.findByUserId(req.session.userId);
-        res.render('home', {
+        return res.render('home', {
           title: 'Mine ejendomme',
           properties,
           user: res.locals.user,
           error: 'Vælg venligst en adresse fra søgeresultaterne.',
           success: null,
         });
-        return;
       }
 
       const property = await Property.create({
@@ -60,13 +59,12 @@ export class PropertyController {
       const property = await Property.findById(parseInt(req.params.id));
 
       if (!property) {
-        res.status(404).render('error', {
+        return res.status(404).render('error', {
           title: 'Ikke fundet',
           message: 'Ejendommen blev ikke fundet.',
           error: null,
           user: res.locals.user,
         });
-        return;
       }
 
       const cases = await InvestmentCase.findByPropertyId(property.id);
