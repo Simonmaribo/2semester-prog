@@ -1,6 +1,5 @@
 const { config } = require('../config.js');
 
-const BBR_REST_BASE = 'https://services.datafordeler.dk/BBR/BBRPublic/1/rest';
 const BBR_USAGE_CODES = {
   '120': 'Parcelhus',
   '130': 'Rækkehus',
@@ -17,36 +16,50 @@ class BbrService {
     try {
       const { DATAFORDELER_USERNAME, DATAFORDELER_PASSWORD } = config;
 
-      const buildings = await BbrService.restRequest('bygning', { Husnummer: adgangsadresseId }, DATAFORDELER_USERNAME, DATAFORDELER_PASSWORD);
-      const building = buildings.find((b) => BbrService.erGældendeBolig(b, 'byg021BygningensAnvendelse'));
+      // find bygning på adressen, filtreret på anvendelseskode (bolig)
+      const bygningParams = new URLSearchParams({
+        format: 'json',
+        MedDybde: 'false',
+        username: DATAFORDELER_USERNAME,
+        password: DATAFORDELER_PASSWORD,
+        Husnummer: adgangsadresseId,
+      });
+      const bygningRes = await fetch(`https://services.datafordeler.dk/BBR/BBRPublic/1/rest/bygning?${bygningParams}`);
+      if (!bygningRes.ok) {
+        console.error('bbr bygning fejl', bygningRes.status);
+        return null;
+      }
+      const buildings = await bygningRes.json();
+      const building = buildings?.find((b) => BbrService.erGældendeBolig(b, 'byg021BygningensAnvendelse'));
       if (!building) return null;
 
-      const units = await BbrService.restRequest('enhed', { Bygning: building.id_lokalId }, DATAFORDELER_USERNAME, DATAFORDELER_PASSWORD);
-      const matchByAddress = adresseId && units.find((u) => u.adresseIdentificerer === adresseId);
-      const unit = matchByAddress || units.find((u) => BbrService.erGældendeBolig(u, 'enh020EnhedensAnvendelse'));
+      // find enheder (lejligheder) i bygningen - relevant ved etageboliger
+      const enhedUrl = `https://services.datafordeler.dk/BBR/BBRPublic/1/rest/enhed?format=json&MedDybde=false&username=${DATAFORDELER_USERNAME}&password=${DATAFORDELER_PASSWORD}&Bygning=${building.id_lokalId}`;
+      const enhedRes = await fetch(enhedUrl);
+      if (!enhedRes.ok) {
+        console.error('bbr enhed fejl', enhedRes.status);
+        return null;
+      }
+      const units = await enhedRes.json();
+
+      let unit = null;
+      if (adresseId) {
+        unit = units.find((u) => u.adresseIdentificerer === adresseId);
+      }
+      if (!unit) {
+        unit = units.find((u) => BbrService.erGældendeBolig(u, 'enh020EnhedensAnvendelse'));
+      }
 
       return {
-        propertyType: BBR_USAGE_CODES[building.byg021BygningensAnvendelse] || 'Andet',
-        buildYear: building.byg026Opførelsesår || null,
-        livingArea: unit.enh026EnhedensSamledeAreal || building.byg039BygningensSamledeBoligAreal || null,
-        rooms: unit.enh031AntalVærelser || null,
+        propertyType: BBR_USAGE_CODES[building.byg021BygningensAnvendelse] || 'Andet', // anvendelseskode (120=parcel, 130=rækkehus, 140=etage)
+        buildYear: building.byg026Opførelsesår || null, // opførelsesår
+        livingArea: unit.enh026EnhedensSamledeAreal || building.byg039BygningensSamledeBoligAreal || null, // enhedens areal ellers bygningens samlede boligareal
+        rooms: unit.enh031AntalVærelser || null,  // antal værelser i enheden
       };
     } catch (error) {
       console.error('bbr fejl:', error);
       return null;
     }
-  }
-
-  static async restRequest(endpoint, params, username, password) {
-    const queryString = new URLSearchParams({ format: 'json', MedDybde: 'false', username, password, ...params }).toString();
-    const response = await fetch(`${BBR_REST_BASE}/${endpoint}?${queryString}`);
-    if (!response.ok) {
-      const body = await response.text();
-      console.error('bbr fejl', endpoint, response.status, body);
-      return null;
-    }
-    const data = await response.json();
-    return Array.isArray(data) ? data : null;
   }
 }
 

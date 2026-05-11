@@ -1,10 +1,6 @@
-const DAWA_BASE_URL = 'https://api.dataforsyningen.dk';
-
 class DawaService {
   static async autocomplete(query) {
-    const url = `${DAWA_BASE_URL}/autocomplete?q=${encodeURIComponent(query)}&type=adresse&caretpos=${query.length}`;
-
-    const response = await fetch(url);
+    const response = await fetch(`https://api.dataforsyningen.dk/autocomplete?q=${encodeURIComponent(query)}&type=adresse&caretpos=${query.length}`);
     if (!response.ok) {
       throw new Error(`DAWA autocomplete fejlede: ${response.status}`);
     }

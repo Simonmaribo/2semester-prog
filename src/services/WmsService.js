@@ -11,17 +11,14 @@
 const proj4 = require('proj4');
 const { config } = require('../config.js');
 
-const WMS_URL = 'https://wms.datafordeler.dk/GeoDanmarkOrto/orto_foraar/1.0.0/WMS';
-
 // Definer EPSG:25832 (dansk UTM zone 32N, GRS80-ellipsoide, meter som enhed)
 // så proj4 ved hvordan det skal konvertere fra GPS (EPSG:4326) til dansk UTM.
 // EPSG:4326 kender proj4 i forvejen.
 proj4.defs('EPSG:25832', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs');
 
 class WmsService {
-  // Bygger URL'en til et luftfoto centreret om (lat, lng) med en given zoom.
-  // zoomMeters = halvdelen af fotoets bredde i meter (200 -> 400m * 400m område).
-  static getAerialPhotoUrl(lat, lng, zoomMeters = 200) {
+  // Bygger URL'en til et luftfoto centreret om (lat, lng).
+  static getAerialPhotoUrl(lat, lng) {
     const token = config.DATAFORSYNINGEN_TOKEN;
     if (!token) return '';
 
@@ -29,13 +26,12 @@ class WmsService {
     // proj4 forventer rækkefølgen [længdegrad, breddegrad].
     const [easting, northing] = proj4('EPSG:4326', 'EPSG:25832', [lng, lat]);
 
-    // WMS'en skal bruge et "bounding box" = de fire hjørner af det område,
-    // vi vil se. Rækkefølge: minX, minY, maxX, maxY.
+    // bbox = 400m x 400m område rundt om punktet (minX, minY, maxX, maxY).
     const bbox = [
-      Math.round(easting - zoomMeters),
-      Math.round(northing - zoomMeters),
-      Math.round(easting + zoomMeters),
-      Math.round(northing + zoomMeters),
+      Math.round(easting - 200),
+      Math.round(northing - 200),
+      Math.round(easting + 200),
+      Math.round(northing + 200),
     ].join(',');
 
     const params = new URLSearchParams({
@@ -52,7 +48,7 @@ class WmsService {
       format: 'image/jpeg',
     });
 
-    return `${WMS_URL}?${params.toString()}`;
+    return `https://wms.datafordeler.dk/GeoDanmarkOrto/orto_foraar/1.0.0/WMS?${params.toString()}`;
   }
 }
 

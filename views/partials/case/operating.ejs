@@ -8,29 +8,29 @@
     <div>
       <h3>Månedlige driftsomkostninger</h3>
 
-      <div class="inputs" id="op-list">
+      <div class="inputs" id="operating-list">
         <% operatingCostsForForm.forEach((op, i) => { %>
-          <div class="inputs-row" data-row style="grid-template-columns: 2fr 1fr 36px">
+          <div class="inputs-row" style="grid-template-columns: 2fr 1fr 36px">
             <input type="text" name="operating_costs[<%= i %>][category]" value="<%= op.category %>" placeholder="Kategori">
-            <input type="number" class="op-amount" name="operating_costs[<%= i %>][monthly_amount]" value="<%= op.monthly_amount %>" min="0" placeholder="Beløb">
-            <button type="button" class="remove" data-remove-row>x</button>
+            <input type="number" class="amount-input" name="operating_costs[<%= i %>][monthly_amount]" value="<%= op.monthly_amount %>" min="0" placeholder="Beløb">
+            <button type="button" class="remove">x</button>
           </div>
         <% }) %>
       </div>
 
-      <template id="op-row-template">
-        <div class="inputs-row" data-row style="grid-template-columns: 2fr 1fr 36px">
+      <template id="operating-row-template">
+        <div class="inputs-row" style="grid-template-columns: 2fr 1fr 36px">
           <input type="text" name="operating_costs[INDEX][category]" placeholder="Kategori">
-          <input type="number" class="op-amount" name="operating_costs[INDEX][monthly_amount]" value="0" min="0" placeholder="Beløb">
-          <button type="button" class="remove" data-remove-row>x</button>
+          <input type="number" class="amount-input" name="operating_costs[INDEX][monthly_amount]" value="0" min="0" placeholder="Beløb">
+          <button type="button" class="remove">x</button>
         </div>
       </template>
 
-      <button type="button" class="btn small" data-add-row="#op-list" data-template="#op-row-template">+ Tilføj udgift</button>
+      <button type="button" class="btn small" onclick="addRow('operating-list', 'operating-row-template')">+ Tilføj udgift</button>
 
       <div style="margin-top:10px; padding:8px 10px; background:#f3f3f3; font-size:13px">
         <strong>Total:</strong>
-        <span id="op-total"><%= totals.totalOperatingMonthly.toLocaleString('da-DK') %> kr/md · <%= (totals.totalOperatingMonthly * 12).toLocaleString('da-DK') %> kr/år</span>
+        <span id="operating-total"><%= totals.totalOperatingMonthly.toLocaleString('da-DK') %> kr/md · <%= (totals.totalOperatingMonthly * 12).toLocaleString('da-DK') %> kr/år</span>
       </div>
     </div>
 
@@ -38,27 +38,27 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
         <h3 style="margin:0">Udlejning</h3>
         <label style="font-size:13px; color:#555; display:flex; gap:6px; align-items:center; cursor:pointer">
-          <input type="checkbox" id="f-rental-toggle" name="is_rental"<%= rentalForForm.is_rental ? ' checked' : '' %>>
+          <input type="checkbox" id="rental-toggle" name="is_rental"<%= rentalForForm.is_rental ? ' checked' : '' %>>
           Udlejes
         </label>
       </div>
 
       <div class="field">
-        <label for="f-rent">Månedlig husleje (kr/md)</label>
-        <input type="number" id="f-rent" name="monthly_rent" value="<%= rentalForForm.monthly_rent %>" min="0">
+        <label for="monthly-rent">Månedlig husleje (kr/md)</label>
+        <input type="number" id="monthly-rent" name="monthly_rent" value="<%= rentalForForm.monthly_rent %>" min="0">
       </div>
       <div class="row">
         <div class="field">
-          <label for="f-vacancy">Tomgang (%)</label>
-          <input type="number" id="f-vacancy" name="vacancy_rate_pct" value="<%= rentalForForm.vacancy_rate_pct %>" min="0" max="100">
+          <label for="vacancy">Tomgang (%)</label>
+          <input type="number" id="vacancy" name="vacancy_rate_pct" value="<%= rentalForForm.vacancy_rate_pct %>" min="0" max="100">
         </div>
         <div class="field">
-          <label for="f-rent-increase">Årlig stigning (%)</label>
-          <input type="number" id="f-rent-increase" name="annual_rent_increase_pct" value="<%= rentalForForm.annual_rent_increase_pct %>" min="0">
+          <label for="rent-increase">Årlig stigning (%)</label>
+          <input type="number" id="rent-increase" name="annual_rent_increase_pct" value="<%= rentalForForm.annual_rent_increase_pct %>" min="0">
         </div>
       </div>
 
-      <div id="required-rent-box" style="margin-top:14px; padding:10px 14px; background:#f3f3f3; font-size:13px" data-worst-payment="<%= totals.worstMonthlyPayment %>">
+      <div id="required-rent-box" style="margin-top:14px; padding:10px 14px; background:#f3f3f3; font-size:13px">
         <strong>Krævet minimumleje: </strong>
         <span id="required-rent-value"><%= totals.requiredMonthlyRent.toLocaleString('da-DK') %> kr/md</span>
       </div>
@@ -71,49 +71,32 @@
 </form>
 
 <script>
-  // Udarbejdet i samspil med AI (Claude) - live opdatering af totaler + krævet leje.
-  (() => {
-    var box = document.getElementById('required-rent-box');
-    if (!box) return;
+  // Live opdatering af totaler + krævet leje når man taster i drift-rækkerne eller tomgang.
+  var worstPayment = <%= totals.worstMonthlyPayment %>;
 
-    var worstPayment = parseFloat(box.getAttribute('data-worst-payment')) || 0;
-
-    function updateTotals() {
-      var amountInputs = document.querySelectorAll('#op-list .op-amount');
-      var opTotal = 0;
-      for (var i = 0; i < amountInputs.length; i++) {
-        opTotal = opTotal + (parseFloat(amountInputs[i].value) || 0);
-      }
-
-      document.getElementById('op-total').textContent =
-        opTotal.toLocaleString('da-DK') + ' kr/md · ' +
-        (opTotal * 12).toLocaleString('da-DK') + ' kr/år';
-
-      var vacancyPct = parseFloat(document.getElementById('f-vacancy').value) || 0;
-      var vacancy = vacancyPct / 100;
-      var required = 0;
-      if (vacancy < 1) {
-        required = Math.ceil((worstPayment + opTotal) / (1 - vacancy));
-      }
-      document.getElementById('required-rent-value').textContent =
-        required.toLocaleString('da-DK') + ' kr/md';
+  function updateTotals() {
+    var amountInputs = document.querySelectorAll('#operating-list .amount-input');
+    var opTotal = 0;
+    for (var i = 0; i < amountInputs.length; i++) {
+      opTotal = opTotal + (parseFloat(amountInputs[i].value) || 0);
     }
 
-    document.addEventListener('input', (e)=> {
-      if (!e.target) return;
-      if (e.target.classList && e.target.classList.contains('op-amount')) {
-        updateTotals();
-      } else if (e.target.id === 'f-vacancy') {
-        updateTotals();
-      }
-    });
+    document.getElementById('operating-total').textContent =
+      opTotal.toLocaleString('da-DK') + ' kr/md · ' +
+      (opTotal * 12).toLocaleString('da-DK') + ' kr/år';
 
-    document.addEventListener('click', (e) => {
-      var isAdd = e.target && e.target.getAttribute && e.target.getAttribute('data-add-row') === '#op-list';
-      var isRemove = e.target && e.target.closest && e.target.closest('[data-remove-row]');
-      if (isAdd || isRemove) {
-        setTimeout(updateTotals, 0);
-      }
-    });
-  })();
+    var vacancyPct = parseFloat(document.getElementById('vacancy').value) || 0;
+    var vacancy = vacancyPct / 100;
+    var required = 0;
+    if (vacancy < 1) {
+      required = Math.ceil((worstPayment + opTotal) / (1 - vacancy));
+    }
+    document.getElementById('required-rent-value').textContent = required.toLocaleString('da-DK') + ' kr/md';
+  }
+
+  document.getElementById('operating-list').addEventListener('input', updateTotals);
+  document.getElementById('operating-list').addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove')) updateTotals();
+  });
+  document.getElementById('vacancy').addEventListener('input', updateTotals);
 </script>

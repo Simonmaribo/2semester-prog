@@ -16,7 +16,7 @@
     </div>
     <div id="loans-list">
       <% loansForForm.forEach((loan, i) => { %>
-        <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 36px">
+        <div class="inputs-row" style="grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 36px">
           <input type="text" name="loans[<%= i %>][label]" value="<%= loan.label %>" placeholder="Betegnelse">
           <input type="number" name="loans[<%= i %>][amount]" value="<%= loan.amount %>" min="0" placeholder="Beløb">
           <input type="number" name="loans[<%= i %>][interest_rate_pct]" value="<%= loan.interest_rate_pct %>" min="0" step="0.01" placeholder="Rente %">
@@ -26,14 +26,14 @@
             <option value="fixed"<%= loan.loan_type === 'fixed' ? ' selected' : '' %>>Fast</option>
             <option value="variable"<%= loan.loan_type === 'variable' ? ' selected' : '' %>>Variabel</option>
           </select>
-          <button type="button" class="remove" data-remove-row>x</button>
+          <button type="button" class="remove">x</button>
         </div>
       <% }) %>
     </div>
   </div>
 
   <template id="loans-row-template">
-    <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 36px">
+    <div class="inputs-row" style="grid-template-columns: 2fr 1.5fr 0.8fr 0.8fr 0.8fr 1fr 36px">
       <input type="text" name="loans[INDEX][label]" placeholder="Betegnelse">
       <input type="number" name="loans[INDEX][amount]" value="0" min="0" placeholder="Beløb">
       <input type="number" name="loans[INDEX][interest_rate_pct]" value="3.5" min="0" step="0.01" placeholder="Rente %">
@@ -43,11 +43,11 @@
         <option value="fixed" selected>Fast</option>
         <option value="variable">Variabel</option>
       </select>
-      <button type="button" class="remove" data-remove-row>x</button>
+      <button type="button" class="remove">x</button>
     </div>
   </template>
 
-  <button type="button" class="btn small" data-add-row="#loans-list" data-template="#loans-row-template">+ Tilføj lån</button>
+  <button type="button" class="btn small" onclick="addRow('loans-list', 'loans-row-template')">+ Tilføj lån</button>
 
   <div class="footer">
     <button type="submit" class="btn primary">Gem & fortsæt -></button>

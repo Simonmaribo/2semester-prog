@@ -12,30 +12,30 @@
       <span>Måned</span>
       <span></span>
     </div>
-    <div id="reno-list">
+    <div id="renovations-list">
       <% renovations.forEach((ren, i) => { %>
-        <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.2fr 1.2fr 0.7fr 36px">
+        <div class="inputs-row" style="grid-template-columns: 2fr 1.2fr 1.2fr 0.7fr 36px">
           <input type="text" name="renovations[<%= i %>][label]" value="<%= ren.label %>" placeholder="Beskrivelse">
           <input type="number" name="renovations[<%= i %>][cost]" value="<%= ren.cost %>" min="0" placeholder="Udgift">
           <input type="number" name="renovations[<%= i %>][value_increase]" value="<%= ren.value_increase %>" min="0" placeholder="Værdiforøgelse">
           <input type="number" name="renovations[<%= i %>][month_in_period]" value="<%= ren.month_in_period %>" min="1" max="360" placeholder="Md.">
-          <button type="button" class="remove" data-remove-row>x</button>
+          <button type="button" class="remove">x</button>
         </div>
       <% }) %>
     </div>
   </div>
 
-  <template id="reno-row-template">
-    <div class="inputs-row" data-row style="grid-template-columns: 2fr 1.2fr 1.2fr 0.7fr 36px">
+  <template id="renovations-row-template">
+    <div class="inputs-row" style="grid-template-columns: 2fr 1.2fr 1.2fr 0.7fr 36px">
       <input type="text" name="renovations[INDEX][label]" placeholder="Beskrivelse">
       <input type="number" name="renovations[INDEX][cost]" value="0" min="0" placeholder="Udgift">
       <input type="number" name="renovations[INDEX][value_increase]" value="0" min="0" placeholder="Værdiforøgelse">
       <input type="number" name="renovations[INDEX][month_in_period]" value="1" min="1" max="360" placeholder="Md.">
-      <button type="button" class="remove" data-remove-row>x</button>
+      <button type="button" class="remove">x</button>
     </div>
   </template>
 
-  <button type="button" class="btn small" data-add-row="#reno-list" data-template="#reno-row-template">+ Tilføj renovering</button>
+  <button type="button" class="btn small" onclick="addRow('renovations-list', 'renovations-row-template')">+ Tilføj renovering</button>
 
   <div class="footer">
     <button type="submit" class="btn primary">Gem & fortsæt -></button>

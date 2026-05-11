@@ -6,7 +6,16 @@ var dropdown = document.getElementById('autocomplete-results');
 var form = document.getElementById('create-property-form');
 var preview = document.getElementById('property-preview');
 
-function triggerSearch() {
+searchBtn.addEventListener('click', triggerSearch);
+
+// Luk dropdown hvis brugeren klikker udenfor
+document.addEventListener('click', (e) => {
+  if (!input.contains(e.target) && !dropdown.contains(e.target) && !searchBtn.contains(e.target)) {
+    dropdown.style.display = 'none';
+  }
+});
+
+async function triggerSearch() {
   var query = input.value.trim();
 
   if (query.length < 2) {
@@ -15,56 +24,37 @@ function triggerSearch() {
     return;
   }
 
-  searchAddresses(query);
-}
+  try {
+    var res = await fetch('/api/dawa/autocomplete?q=' + encodeURIComponent(query));
+    var results = await res.json();
 
-searchBtn.addEventListener('click', triggerSearch);
+    dropdown.innerHTML = '';
 
-// Luk dropdown hvis brugeren klikker udenfor
-document.addEventListener('click', (e) => {
-  if (
-    !input.contains(e.target) &&
-    !dropdown.contains(e.target) &&
-    !searchBtn.contains(e.target)
-  ) {
-    dropdown.style.display = 'none';
-  }
-});
+    if (results.length === 0) {
+      dropdown.style.display = 'none';
+      return;
+    }
 
-function searchAddresses(query) {
-  fetch('/api/dawa/autocomplete?q=' + encodeURIComponent(query))
-    .then((res) => res.json())
-    .then((results) => {
-      dropdown.innerHTML = '';
-
-      if (results.length === 0) {
-        dropdown.style.display = 'none';
-        return;
-      }
-
-      results.forEach((item) => {
-        var div = document.createElement('div');
-        div.className = 'autocomplete-item';
-        div.textContent = item.forslagstekst;
-        div.addEventListener('click', () => {
-          selectAddress(item);
-        });
-        dropdown.appendChild(div);
-      });
-
-      dropdown.style.display = 'block';
-    })
-    .catch((err) => {
-      console.error('Fejl ved adressesøgning:', err);
+    results.forEach((item) => {
+      var div = document.createElement('div');
+      div.className = 'autocomplete-item';
+      div.textContent = item.forslagstekst;
+      div.addEventListener('click', () => selectAddress(item));
+      dropdown.appendChild(div);
     });
+
+    dropdown.style.display = 'block';
+  } catch (err) {
+    console.error('dawa fejl:', err);
+  }
 }
 
-function selectAddress(item) {
+async function selectAddress(item) {
   input.value = item.forslagstekst;
   dropdown.style.display = 'none';
 
   // adgangsadresseid = selve adressen, id = den specifikke bolig (bruges ved ejerlejligheder)
-  var adgangsadresseId = item.data.adgangsadresseid;
+  var adgangsadresseId = item.data.adgangsadresseid || item.data.id;
   var adresseId = item.data.id;
 
   // Udfyld skjulte form-felter så de sendes med når formen submittes
@@ -73,19 +63,15 @@ function selectAddress(item) {
   document.getElementById('selected-lat').value = item.data.y || '';
   document.getElementById('selected-lng').value = item.data.x || '';
 
-  // Hent BBR-data for adressen
-  fetch('/api/bbr/' + adgangsadresseId + '?adresseId=' + adresseId)
-    .then((res) => { 
-      return res.json(); 
-    })
-    .then((bbr) =>{
-      showPreview(bbr);
-    })
-    .catch((err) => {
-      console.error('Fejl ved BBR-opslag:', err);
-      preview.innerHTML = '<p>Fejl ved hentning af bygningsdata.</p>';
-      form.style.display = 'block';
-    });
+  try {
+    var res = await fetch('/api/bbr/' + adgangsadresseId + '?adresseId=' + adresseId);
+    var bbr = await res.json();
+    showPreview(bbr);
+  } catch (err) {
+    console.error('bbr fejl:', err);
+    preview.innerHTML = '<p>Fejl ved hentning af bygningsdata.</p>';
+    form.style.display = 'block';
+  }
 }
 
 // Vis BBR-data i preview-området og udfyld skjulte felter
