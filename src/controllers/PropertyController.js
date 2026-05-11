@@ -22,7 +22,7 @@ export class PropertyController {
     try {
       const {
         address, dawa_address_id, latitude, longitude,
-        property_type, build_year, living_area, rooms, land_area,
+        property_type, build_year, living_area, rooms,
       } = req.body;
 
       if (!address) {
@@ -47,7 +47,6 @@ export class PropertyController {
         build_year: build_year ? parseInt(build_year) : undefined,
         living_area: living_area ? parseFloat(living_area) : undefined,
         rooms: rooms ? parseInt(rooms) : undefined,
-        land_area: land_area ? parseFloat(land_area) : undefined,
       });
 
       res.redirect(`/properties/${property.id}`);

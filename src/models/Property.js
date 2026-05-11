@@ -9,7 +9,6 @@ export class Property {
     this.build_year = data.build_year;
     this.living_area = data.living_area;
     this.rooms = data.rooms;
-    this.land_area = data.land_area;
     this.latitude = data.latitude;
     this.longitude = data.longitude;
     this.dawa_address_id = data.dawa_address_id;
@@ -51,7 +50,7 @@ export class Property {
       .input('build_year', data.build_year || null)
       .input('living_area', data.living_area || null)
       .input('rooms', data.rooms || null)
-      .input('land_area', data.land_area || null)
+      .input('land_area', null)
       .input('latitude', data.latitude || null)
       .input('longitude', data.longitude || null)
       .input('dawa_address_id', data.dawa_address_id || null)

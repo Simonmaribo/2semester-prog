@@ -18,10 +18,16 @@ DATAFORSYNINGEN_TOKEN=
 PORT=3000
 ```
 
+### Installer
+
+```bash
+npm install
+```
+
 ### Start appen
 
 ```bash
-npm run dev
+npm run start
 ```
 
 Appen kører på http://localhost:3000

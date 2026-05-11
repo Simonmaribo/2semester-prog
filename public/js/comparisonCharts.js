@@ -1,4 +1,4 @@
-// Grafer på sammenligningssiden. comparisonData kommer fra en <script>-blok i comparison.ejs.
+// Grafer på sammenligningssiden. comparisonData kommer fra en <script> i comparison.ejs.
 const c1 = comparisonData.case1;
 const c2 = comparisonData.case2;
 
