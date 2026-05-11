@@ -32,7 +32,7 @@ class BbrService {
         rooms: unit.enh031AntalVærelser || null,
       };
     } catch (error) {
-      console.error('[BBR] Fejl:', error);
+      console.error('bbr fejl:', error);
       return null;
     }
   }
@@ -41,8 +41,8 @@ class BbrService {
     const queryString = new URLSearchParams({ format: 'json', MedDybde: 'false', username, password, ...params }).toString();
     const response = await fetch(`${BBR_REST_BASE}/${endpoint}?${queryString}`);
     if (!response.ok) {
-      const body = await response.text()
-      console.error(`[BBR] ${endpoint} fejlede: ${response.status} - ${body}`);
+      const body = await response.text();
+      console.error('bbr fejl', endpoint, response.status, body);
       return null;
     }
     const data = await response.json();

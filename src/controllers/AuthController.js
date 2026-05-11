@@ -39,7 +39,7 @@ class AuthController {
       req.session.userId = user.id;
       res.redirect('/properties');
     } catch (error) {
-      console.error('Fejl ved login:', error);
+      console.error('login fejl:', error);
       res.render('auth/login', {
         title: 'Log ind',
         error: 'Der opstod en fejl. Prøv igen.',
@@ -94,7 +94,7 @@ class AuthController {
       req.session.userId = newUser.id;
       res.redirect('/properties');
     } catch (error) {
-      console.error('Fejl ved registrering:', error);
+      console.error('register fejl:', error);
       res.render('auth/register', {
         title: 'Opret konto',
         error: 'Der opstod en fejl. Prøv igen.',

@@ -36,7 +36,7 @@ class ComparisonController {
         comparison: { case1: data1, case2: data2 },
       });
     } catch (error) {
-      console.error('Fejl i sammenligning:', error);
+      console.error('sammenlign fejl:', error);
       res.status(500).render('error', {
         title: 'Fejl',
         message: 'Kunne ikke hente sammenligningen.',

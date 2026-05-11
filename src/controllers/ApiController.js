@@ -5,15 +5,14 @@ class ApiController {
   static async dawaAutocomplete(req, res) {
     try {
       const query = req.query.q;
-      console.log(`[DAWA Autocomplete] Søger efter: "${query}"`);
       if (!query || query.length < 2) {
         return res.json([]);
       }
       const results = await DawaService.autocomplete(query);
-      console.log(`[DAWA Autocomplete] Fandt ${results.length} resultater`);
+      console.log('dawa', query, '->', results.length);
       res.json(results);
     } catch (error) {
-      console.error('[DAWA Autocomplete] Fejl:', error);
+      console.error('dawa fejl:', error);
       res.status(500).json({ error: 'Kunne ikke søge efter adresser' });
     }
   }
@@ -24,10 +23,10 @@ class ApiController {
       if (!data) {
         return res.status(404).json({ error: 'Ingen bygningsdata fundet' });
       }
-      console.log(`[BBR] Fundet: ${data.propertyType}, byggeår: ${data.buildYear}, areal: ${data.livingArea} m²`);
+      console.log('bbr', data.propertyType, data.buildYear, data.livingArea);
       res.json(data);
     } catch (error) {
-      console.error('[BBR] Fejl:', error);
+      console.error('bbr fejl:', error);
       res.status(500).json({ error: 'Kunne ikke hente bygningsdata' });
     }
   }
